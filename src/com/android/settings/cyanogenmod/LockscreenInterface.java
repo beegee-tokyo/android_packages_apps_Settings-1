@@ -86,7 +86,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     private CheckBoxPreference mEnableCameraWidget;
     private CheckBoxPreference mSeeThrough;
     private CheckBoxPreference mLockscreenUseCarousel;
-    private CheckBoxPreference mEnableModLock;
     private CheckBoxPreference mEnableMaximizeWidgets;
     private CheckBoxPreference mEnableModLock;
     private ListPreference mLockBackground;
@@ -130,11 +129,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
 
         // lockscreen see through
         mSeeThrough = (CheckBoxPreference) findPreference(KEY_SEE_TRHOUGH);
-
-        mEnableModLock = (CheckBoxPreference) findPreference(KEY_LOCKSCREEN_MODLOCK_ENABLED);
-        if (mEnableModLock != null) {
-            mEnableModLock.setOnPreferenceChangeListener(this);
-        }
 
         mEnableModLock = (CheckBoxPreference) findPreference(KEY_LOCKSCREEN_MODLOCK_ENABLED);
         if (mEnableModLock != null) {
@@ -228,7 +222,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             mEnableModLock.setChecked(checked);
         }
 
-        updateBackgroundPreference();
     }
 
     private void updateAvailableModLockPreferences() {
@@ -282,10 +275,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             int index = mBatteryStatus.findIndexOfValue((String) objValue);
             Settings.System.putInt(cr, Settings.System.LOCKSCREEN_BATTERY_VISIBILITY, value);
             mBatteryStatus.setSummary(mBatteryStatus.getEntries()[index]);
-            return true;
-        } else if (preference == mLockBackground) {
-            int index = mLockBackground.findIndexOfValue((String) objValue);
-            handleBackgroundSelection(index);
             return true;
         } else if (preference == mEnableModLock) {
             boolean value = (Boolean) objValue;
