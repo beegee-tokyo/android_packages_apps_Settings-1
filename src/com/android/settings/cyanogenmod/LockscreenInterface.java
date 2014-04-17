@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012-2014 The CyanogenMod Project
+ * Modifications Copyright (C) 2013-2014 The NamelessROM Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +79,8 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     // Nameless Additions
     private static final String KEY_LOCKSCREEN_TORCH = "lockscreen_glowpad_torch";
     private static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
+    private static final String PREF_LOCKSCREEN_USE_CAROUSEL = "lockscreen_use_widget_container_carousel";
+    private static final String KEY_WIDGETS_CATAGORY = "widgets_catagory";
 
     private CheckBoxPreference mEnableKeyguardWidgets;
     private CheckBoxPreference mEnableCameraWidget;
@@ -86,8 +89,14 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     private ListPreference mLockBackground;
     private ListPreference mBatteryStatus;
 
+
+
     // Nameless Additions
     private CheckBoxPreference mLockRingBattery;
+    private PreferenceCategory mWidgetsCatagory;
+    private CheckBoxPreference mLockscreenUseCarousel;
+
+
 
     private ChooseLockSettingsHelper mChooseLockSettingsHelper;
     private LockPatternUtils mLockUtils;
@@ -103,6 +112,16 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
         mLockUtils = mChooseLockSettingsHelper.utils();
         mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
+
+        mWidgetsCatagory = (PreferenceCategory) findPreference(KEY_WIDGETS_CATAGORY);
+        mLockscreenUseCarousel = (CheckBoxPreference) findPreference(PREF_LOCKSCREEN_USE_CAROUSEL);
+        if (!showCarousel()) {
+            mWidgetsCatagory.removePreference(mLockscreenUseCarousel);
+        } else {
+            mLockscreenUseCarousel.setChecked(Settings.System.getInt(getContentResolver(),
+                Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL, 0) == 1);
+        }
 
         // Find categories
         PreferenceCategory generalCategory = (PreferenceCategory)
@@ -153,6 +172,11 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             mEnableModLock = null;
         }
 
+        // Glowpad Torch
+        if (!NamelessUtils.isPackageInstalled(getActivity(), FlashLightConstants.APP_PACKAGE_NAME)) {
+            generalCategory.removePreference(findPreference(KEY_LOCKSCREEN_TORCH));
+        }        
+        
         // Remove cLock settings item if not installed
         if (!Utils.isPackageInstalled(getActivity(), "com.cyanogenmod.lockclock")) {
             widgetsCategory.removePreference(findPreference(KEY_LOCK_CLOCK));
@@ -170,10 +194,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         mTempWallpaper = getActivity().getFileStreamPath(LOCKSCREEN_WALLPAPER_TEMP_NAME);
         mWallpaper = LockscreenBackgroundUtil.getWallpaperFile(getActivity());
 
-        // Glowpad Torch
-        if (!NamelessUtils.isPackageInstalled(getActivity(), FlashLightConstants.APP_PACKAGE_NAME)) {
-            generalCategory.removePreference(findPreference(KEY_LOCKSCREEN_TORCH));
-        }
     }
 
     @Override
@@ -227,12 +247,13 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             mEnableMaximizeWidgets.setEnabled(enabled);
         }
         // Add the additional Omni settings
-            mLockRingBattery = (CheckBoxPreference) findPreference(
+        mLockRingBattery = (CheckBoxPreference) findPreference(
                 BATTERY_AROUND_LOCKSCREEN_RING);
-            if (mLockRingBattery != null) {
-                mLockRingBattery.setChecked(Settings.System.getInt(getContentResolver(),
+        if (mLockRingBattery != null) {
+            mLockRingBattery.setChecked(Settings.System.getInt(getContentResolver(),
                     Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, 0) == 1);
         }
+
     }
 
     private void updateBackgroundPreference() {
@@ -252,8 +273,12 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             return true;
         } else if (preference == mLockRingBattery) {
             Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
-                Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, mLockRingBattery.isChecked() ? 1 : 0);
+                    Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, mLockRingBattery.isChecked() ? 1 : 0);
             return true;
+        } else if (preference == mLockscreenUseCarousel) {
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL,
+                    mLockscreenUseCarousel.isChecked() ? 1 : 0);
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -319,6 +344,10 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
      */
     private boolean featureIsDisabled(int feature) {
         return (mDPM.getKeyguardDisabledFeatures(null) & feature) != 0;
+    }
+
+    public boolean showCarousel() {
+        return !getResources().getBoolean(R.bool.config_show_carousel);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
