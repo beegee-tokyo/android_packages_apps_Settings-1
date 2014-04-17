@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 SlimRoms
+ * Copyright (C) 2014 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.settings.slim.themes;
+package com.android.settings.voicewakeup;
 
 import android.content.Context;
-import android.content.res.Configuration;
+import android.content.Intent;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
-import com.android.internal.util.slim.ButtonsConstants;
-import com.android.internal.util.slim.SlimActions;
-
-import com.android.settings.R;
-
-public class ThemeEnabler implements CompoundButton.OnCheckedChangeListener {
+public class VoiceWakeupEnabler implements CompoundButton.OnCheckedChangeListener {
     private final Context mContext;
     private Switch mSwitch;
     private boolean mStateMachineEvent;
 
-    public ThemeEnabler(Context context, Switch switch_) {
+    public VoiceWakeupEnabler(Context context, Switch switch_) {
         mContext = context;
         mSwitch = switch_;
     }
@@ -46,18 +43,19 @@ public class ThemeEnabler implements CompoundButton.OnCheckedChangeListener {
     }
 
     public void setSwitch(Switch switch_) {
-        if (mSwitch == switch_) return;
+        if (mSwitch == switch_)
+            return;
         mSwitch.setOnCheckedChangeListener(null);
         mSwitch = switch_;
         mSwitch.setOnCheckedChangeListener(this);
         setSwitchState();
     }
 
-    public void setSwitchState() {
-        boolean state = mContext.getResources().getConfiguration().uiThemeMode
-                    == Configuration.UI_THEME_MODE_HOLO_DARK;
+    private void setSwitchState() {
+        boolean enabled = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.VOICE_WAKEUP, 0) == 1;
         mStateMachineEvent = true;
-        mSwitch.setChecked(state);
+        mSwitch.setChecked(enabled);
         mStateMachineEvent = false;
     }
 
@@ -65,8 +63,15 @@ public class ThemeEnabler implements CompoundButton.OnCheckedChangeListener {
         if (mStateMachineEvent) {
             return;
         }
-        SlimActions.processAction(mContext, ButtonsConstants.ACTION_THEME_SWITCH, false);
-        setSwitchState();
+        // Handle a switch change
+        Settings.System.putInt(mContext.getContentResolver(),
+                Settings.System.VOICE_WAKEUP, isChecked ? 1 : 0);
+
+        // service should shut down on its own after switch off
+        if (isChecked) {
+            Intent i = new Intent("com.cyanogenmod.voicewakeup.action.START_ENGINE");
+            mContext.startService(i);
+        }
     }
 
 }

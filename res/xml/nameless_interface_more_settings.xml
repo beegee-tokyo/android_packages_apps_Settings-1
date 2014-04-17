@@ -20,15 +20,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/system_interface_title">
 
-    <!-- Themes -->
-    <Preference
-        android:id="@+id/theme_settings"
-        android:title="@string/themes_settings_title"
-        android:breadCrumbTitle="@string/themes_settings_title"
-        android:fragment="com.android.settings.ThemeSettings"
-        android:icon="@drawable/prd_ic_themepacks">
-    </Preference>
-
     <PreferenceCategory
         android:key="category_recent_panel"
         android:title="@string/system_ui_recent_panel_title">

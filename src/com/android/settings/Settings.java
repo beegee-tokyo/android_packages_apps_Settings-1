@@ -37,7 +37,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.nfc.NfcAdapter;
@@ -103,10 +102,9 @@ import com.android.settings.profiles.AppGroupConfig;
 import com.android.settings.profiles.ProfileConfig;
 import com.android.settings.profiles.ProfileEnabler;
 import com.android.settings.profiles.ProfilesSettings;
-import com.android.settings.slim.themes.ThemeEnabler;
-import com.android.settings.slim.themes.ThemeSettings;
 import com.android.settings.tts.TextToSpeechSettings;
 import com.android.settings.users.UserSettings;
+import com.android.settings.voicewakeup.VoiceWakeupEnabler;
 import com.android.settings.vpn2.VpnSettings;
 import com.android.settings.wfd.WifiDisplaySettings;
 import com.android.settings.wifi.AdvancedWifiSettings;
@@ -148,6 +146,7 @@ public class Settings extends PreferenceActivity
             "org.namelessrom.devicecontrol.activities.MainActivity";
     private static final String ACTION_UPDATE_CENTER =
             "org.namelessrom.updatecenter.activities.MainActivity";
+    private static final String VOICE_WAKEUP_PACKAGE_NAME = "com.cyanogenmod.voicewakeup";
 
     static final int DIALOG_ONLY_ONE_HOME = 1;
 
@@ -159,8 +158,6 @@ public class Settings extends PreferenceActivity
     private Header mCurrentHeader;
     private Header mParentHeader;
     private boolean mInLocalHeaderSwitch;
-
-    private int mCurrentState = 0;
 
     // Show only these settings for restricted users
     private int[] SETTINGS_FOR_RESTRICTED = {
@@ -397,15 +394,15 @@ public class Settings extends PreferenceActivity
         com.android.settings.cyanogenmod.PrivacySettings.class.getName(),
         com.android.settings.quicksettings.QuickSettingsTiles.class.getName(),
         com.android.settings.cyanogenmod.QuietHours.class.getName(),
-        ThemeSettings.class.getName()
+        com.android.settings.quicksettings.QuickSettingsTiles.class.getName()
     };
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
         // Almost all fragments are wrapped in this,
         // except for a few that have their own activities.
-        for (String ENTRY_FRAGMENT : ENTRY_FRAGMENTS) {
-            if (ENTRY_FRAGMENT.equals(fragmentName)) return true;
+        for (int i = 0; i < ENTRY_FRAGMENTS.length; i++) {
+            if (ENTRY_FRAGMENTS[i].equals(fragmentName)) return true;
         }
         return false;
     }
@@ -711,6 +708,10 @@ public class Settings extends PreferenceActivity
             } else if (id == R.id.multi_sim_settings) {
                 if (!MSimTelephonyManager.getDefault().isMultiSimEnabled())
                     target.remove(header);
+            } else if (id == R.id.voice_wakeup_settings) {
+                if(!Utils.isPackageInstalled(this, VOICE_WAKEUP_PACKAGE_NAME)) {
+                    target.remove(header);
+                }
             }
 
             if (i < target.size() && target.get(i) == header
@@ -903,9 +904,9 @@ public class Settings extends PreferenceActivity
         private final MobileDataEnabler mMobileDataEnabler;
         private final ProfileEnabler mProfileEnabler;
         private final LocationEnabler mLocationEnabler;
+        private final VoiceWakeupEnabler mVoiceWakeupEnabler;
         private AuthenticatorHelper mAuthHelper;
         private DevicePolicyManager mDevicePolicyManager;
-        public static ThemeEnabler mThemeEnabler;
 
         private static class HeaderViewHolder {
             ImageView icon;
@@ -919,15 +920,14 @@ public class Settings extends PreferenceActivity
         private LayoutInflater mInflater;
 
         static int getHeaderType(Header header) {
-            if (header.fragment == null && header.intent == null
-                    && header.id != R.id.theme_settings) {
+            if (header.fragment == null && header.intent == null) {
                 return HEADER_TYPE_CATEGORY;
             } else if (header.id == R.id.wifi_settings
                     || header.id == R.id.bluetooth_settings
                     || header.id == R.id.mobile_network_settings
                     || header.id == R.id.profiles_settings
-                    || header.id == R.id.location_settings
-                    || header.id == R.id.theme_settings) {
+                    || header.id == R.id.voice_wakeup_settings
+                    || header.id == R.id.location_settings) {
                 return HEADER_TYPE_SWITCH;
             } else if (header.id == R.id.security_settings) {
                 return HEADER_TYPE_BUTTON;
@@ -976,7 +976,7 @@ public class Settings extends PreferenceActivity
             mMobileDataEnabler = new MobileDataEnabler(context, new Switch(context));
             mProfileEnabler = new ProfileEnabler(context, new Switch(context));
             mLocationEnabler = new LocationEnabler(context, new Switch(context));
-            mThemeEnabler = new ThemeEnabler(context, new Switch(context));
+            mVoiceWakeupEnabler = new VoiceWakeupEnabler(context, new Switch(context));
             mDevicePolicyManager = dpm;
         }
 
@@ -1054,8 +1054,8 @@ public class Settings extends PreferenceActivity
                         mProfileEnabler.setSwitch(holder.switch_);
                     } else if (header.id == R.id.location_settings) {
                         mLocationEnabler.setSwitch(holder.switch_);
-                    } else if (header.id == R.id.theme_settings) {
-                        mThemeEnabler.setSwitch(holder.switch_);
+                    } else if (header.id == R.id.voice_wakeup_settings) {
+                        mVoiceWakeupEnabler.setSwitch(holder.switch_);
                     }
                     updateCommonHeaderView(header, holder);
                     break;
@@ -1132,7 +1132,7 @@ public class Settings extends PreferenceActivity
             mMobileDataEnabler.resume();
             mProfileEnabler.resume();
             mLocationEnabler.resume();
-            mThemeEnabler.resume();
+            mVoiceWakeupEnabler.resume();
         }
 
         public void pause() {
@@ -1141,7 +1141,7 @@ public class Settings extends PreferenceActivity
             mMobileDataEnabler.pause();
             mProfileEnabler.pause();
             mLocationEnabler.pause();
-            mThemeEnabler.resume();
+            mVoiceWakeupEnabler.pause();
         }
     }
 
@@ -1217,16 +1217,6 @@ public class Settings extends PreferenceActivity
         invalidateHeaders();
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (newConfig.uiThemeMode != mCurrentState && HeaderAdapter.mThemeEnabler != null) {
-            mCurrentState = newConfig.uiThemeMode;
-            HeaderAdapter.mThemeEnabler.setSwitchState();
-        }
-    }
-
     public static void requestHomeNotice() {
         sShowNoHomeNotice = true;
     }
@@ -1295,6 +1285,7 @@ public class Settings extends PreferenceActivity
     public static class AndroidBeamSettingsActivity extends Settings { /* empty */ }
     public static class WifiDisplaySettingsActivity extends Settings { /* empty */ }
     public static class ProfilesSettingsActivity extends Settings { /* empty */ }
+    public static class VoiceWakeupSettingsActivity extends Settings { /* empty */ }
     public static class DreamSettingsActivity extends Settings { /* empty */ }
     public static class NotificationStationActivity extends Settings { /* empty */ }
     public static class UserSettingsActivity extends Settings { /* empty */ }
@@ -1314,5 +1305,4 @@ public class Settings extends PreferenceActivity
     /* NamelessROM */
     public static class AnimationInterfaceSettingsActivity extends Settings { /* empty */ }
     public static class MoreInterfaceSettingsActivity extends Settings { /* empty */ }
-    public static class ThemeSettingsActivity extends Settings { /* empty */ }
 }

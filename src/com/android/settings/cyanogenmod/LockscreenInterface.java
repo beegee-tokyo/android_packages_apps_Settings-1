@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2012-2014 The CyanogenMod Project
- * Modifications Copyright (C) 2013-2014 The NamelessROM Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,13 +47,15 @@ import android.provider.Settings;
 import android.view.Display;
 import android.widget.Toast;
 
-import com.android.internal.util.nameless.NamelessUtils;
-import com.android.internal.util.nameless.constants.FlashLightConstants;
+import com.android.internal.util.cm.LockscreenBackgroundUtil;
 import com.android.internal.widget.LockPatternUtils;
-import com.android.settings.ChooseLockSettingsHelper;
 import com.android.settings.R;
+import com.android.settings.ChooseLockSettingsHelper;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
+
+import com.android.internal.util.nameless.NamelessUtils;
+import com.android.internal.util.nameless.constants.FlashLightConstants;
 
 public class LockscreenInterface extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
@@ -65,38 +66,34 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     private static final String KEY_LOCKSCREEN_BUTTONS = "lockscreen_buttons";
     private static final String KEY_ENABLE_WIDGETS = "keyguard_enable_widgets";
     private static final String KEY_LOCK_CLOCK = "lock_clock";
-    private static final String PREF_LOCKSCREEN_USE_CAROUSEL = "lockscreen_use_widget_container_carousel";
-
-    // Omni Additions
-    private static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
-
     private static final String KEY_ENABLE_CAMERA = "keyguard_enable_camera";
-    private static final String KEY_SEE_TRHOUGH = "see_through";
-    private static final String KEY_WIDGETS_CATAGORY = "widgets_catagory";
     private static final String KEY_ENABLE_MAXIMIZE_WIGETS = "lockscreen_maximize_widgets";
     private static final String LOCKSCREEN_BACKGROUND_STYLE = "lockscreen_background_style";
     private static final String KEY_LOCKSCREEN_MODLOCK_ENABLED = "lockscreen_modlock_enabled";
 
+    private static final String LOCKSCREEN_WALLPAPER_TEMP_NAME = ".lockwallpaper";
+
+    private static final int REQUEST_PICK_WALLPAPER = 201;
+
     // Nameless Additions
     private static final String KEY_LOCKSCREEN_TORCH = "lockscreen_glowpad_torch";
-
-    private PreferenceCategory mWidgetsCatagory;
+    private static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
 
     private CheckBoxPreference mEnableKeyguardWidgets;
     private CheckBoxPreference mEnableCameraWidget;
-    private CheckBoxPreference mSeeThrough;
-    private CheckBoxPreference mLockscreenUseCarousel;
-    private CheckBoxPreference mEnableMaximizeWidgets;
     private CheckBoxPreference mEnableModLock;
+    private CheckBoxPreference mEnableMaximizeWidgets;
     private ListPreference mLockBackground;
     private ListPreference mBatteryStatus;
+
+    // Nameless Additions
+    private CheckBoxPreference mLockRingBattery;
 
     private ChooseLockSettingsHelper mChooseLockSettingsHelper;
     private LockPatternUtils mLockUtils;
     private DevicePolicyManager mDPM;
 
-    // Omni Additions
-    private CheckBoxPreference mLockRingBattery;
+    private File mTempWallpaper, mWallpaper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,15 +103,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
         mLockUtils = mChooseLockSettingsHelper.utils();
         mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-
-        mWidgetsCatagory = (PreferenceCategory) findPreference(KEY_WIDGETS_CATAGORY);
-        mLockscreenUseCarousel = (CheckBoxPreference) findPreference(PREF_LOCKSCREEN_USE_CAROUSEL);
-        if (!showCarousel()) {
-            mWidgetsCatagory.removePreference(mLockscreenUseCarousel);
-        } else {
-            mLockscreenUseCarousel.setChecked(Settings.System.getInt(getContentResolver(),
-                Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL, 0) == 1);
-        }
 
         // Find categories
         PreferenceCategory generalCategory = (PreferenceCategory)
@@ -126,9 +114,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         mEnableKeyguardWidgets = (CheckBoxPreference) findPreference(KEY_ENABLE_WIDGETS);
         mEnableCameraWidget = (CheckBoxPreference) findPreference(KEY_ENABLE_CAMERA);
         mEnableMaximizeWidgets = (CheckBoxPreference) findPreference(KEY_ENABLE_MAXIMIZE_WIGETS);
-
-        // lockscreen see through
-        mSeeThrough = (CheckBoxPreference) findPreference(KEY_SEE_TRHOUGH);
 
         mEnableModLock = (CheckBoxPreference) findPreference(KEY_LOCKSCREEN_MODLOCK_ENABLED);
         if (mEnableModLock != null) {
@@ -167,18 +152,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             generalCategory.removePreference(mEnableModLock);
             mEnableModLock = null;
         }
-        // Add the additional Omni settings
-        mLockRingBattery = (CheckBoxPreference) findPreference(
-            BATTERY_AROUND_LOCKSCREEN_RING);
-        if (mLockRingBattery != null) {
-            mLockRingBattery.setChecked(Settings.System.getInt(getContentResolver(),
-                Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, 0) == 1);
-        }
-
-        // Glowpad Torch
-        if (!NamelessUtils.isPackageInstalled(getActivity(), FlashLightConstants.APP_PACKAGE_NAME)) {
-            generalCategory.removePreference(findPreference(KEY_LOCKSCREEN_TORCH));
-        }
 
         // Remove cLock settings item if not installed
         if (!Utils.isPackageInstalled(getActivity(), "com.cyanogenmod.lockclock")) {
@@ -189,6 +162,17 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         if (!Utils.isPhone(getActivity())) {
             widgetsCategory.removePreference(
                     mEnableMaximizeWidgets);
+        }
+
+        mLockBackground = (ListPreference) findPreference(LOCKSCREEN_BACKGROUND_STYLE);
+        mLockBackground.setOnPreferenceChangeListener(this);
+
+        mTempWallpaper = getActivity().getFileStreamPath(LOCKSCREEN_WALLPAPER_TEMP_NAME);
+        mWallpaper = LockscreenBackgroundUtil.getWallpaperFile(getActivity());
+
+        // Glowpad Torch
+        if (!NamelessUtils.isPackageInstalled(getActivity(), FlashLightConstants.APP_PACKAGE_NAME)) {
+            generalCategory.removePreference(findPreference(KEY_LOCKSCREEN_TORCH));
         }
     }
 
@@ -222,6 +206,8 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             mEnableModLock.setChecked(checked);
         }
 
+        updateBackgroundPreference();
+        updateAvailableModLockPreferences();
     }
 
     private void updateAvailableModLockPreferences() {
@@ -240,6 +226,18 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         if (mEnableMaximizeWidgets != null) {
             mEnableMaximizeWidgets.setEnabled(enabled);
         }
+        // Add the additional Omni settings
+            mLockRingBattery = (CheckBoxPreference) findPreference(
+                BATTERY_AROUND_LOCKSCREEN_RING);
+            if (mLockRingBattery != null) {
+                mLockRingBattery.setChecked(Settings.System.getInt(getContentResolver(),
+                    Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, 0) == 1);
+        }
+    }
+
+    private void updateBackgroundPreference() {
+        int lockVal = LockscreenBackgroundUtil.getLockscreenStyle(getActivity());
+        mLockBackground.setValue(Integer.toString(lockVal));
     }
 
     @Override
@@ -248,20 +246,14 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
 
         if (KEY_ENABLE_WIDGETS.equals(key)) {
             mLockUtils.setWidgetsEnabled(mEnableKeyguardWidgets.isChecked());
-        } else if (preference == mLockRingBattery) {
-            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
-                Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, mLockRingBattery.isChecked() ? 1 : 0);
             return true;
         } else if (KEY_ENABLE_CAMERA.equals(key)) {
             mLockUtils.setCameraEnabled(mEnableCameraWidget.isChecked());
             return true;
-        } else if (preference == mSeeThrough) {
-            Settings.System.putInt(getContentResolver(), Settings.System.LOCKSCREEN_SEE_THROUGH,
-                    mSeeThrough.isChecked() ? 1 : 0);
-        } else if (preference == mLockscreenUseCarousel) {
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL,
-                    mLockscreenUseCarousel.isChecked() ? 1 : 0);
+        } else if (preference == mLockRingBattery) {
+            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
+                Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, mLockRingBattery.isChecked() ? 1 : 0);
+            return true;
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -326,8 +318,152 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         return (mDPM.getKeyguardDisabledFeatures(null) & feature) != 0;
     }
 
-    public boolean showCarousel() {
-        return !getResources().getBoolean(R.bool.config_show_carousel);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_PICK_WALLPAPER) {
+            if (resultCode == Activity.RESULT_OK) {
+                Uri uri = data != null ? data.getData() : null;
+                if (uri == null) {
+                    uri = Uri.fromFile(mTempWallpaper);
+                }
+                new SaveUserWallpaperTask().execute(uri);
+            } else {
+                toastLockscreenWallpaperStatus(false);
+            }
+        }
     }
 
+    private Bitmap getBitmapFromUri(Uri uri) {
+        ParcelFileDescriptor parcelFileDescriptor = null;
+        try {
+            parcelFileDescriptor = getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            return image;
+        } catch (IOException e) {
+        } finally {
+            if (parcelFileDescriptor != null) {
+                try {
+                    parcelFileDescriptor.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return null;
+    }
+
+    private void handleBackgroundSelection(int index) {
+        if (index == LockscreenBackgroundUtil.LOCKSCREEN_STYLE_IMAGE) {
+            // Launches intent for user to select an image/crop it to set as background
+            final Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
+            intent.setType("image/*");
+            intent.putExtra("crop", "true");
+            intent.putExtra("scale", true);
+            intent.putExtra("scaleUpIfNeeded", false);
+            intent.putExtra("scaleType", 6);
+            intent.putExtra("layout_width", -1);
+            intent.putExtra("layout_height", -2);
+            intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+
+            final Display display = getActivity().getWindowManager().getDefaultDisplay();
+            boolean isPortrait = getResources().getConfiguration().orientation ==
+                    Configuration.ORIENTATION_PORTRAIT;
+
+            Point screenDimension = new Point();
+            display.getSize(screenDimension);
+            int width = screenDimension.x;
+            int height = screenDimension.y;
+
+            intent.putExtra("aspectX", isPortrait ? width : height);
+            intent.putExtra("aspectY", isPortrait ? height : width);
+
+            try {
+                mTempWallpaper.createNewFile();
+                mTempWallpaper.setWritable(true, false);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTempWallpaper));
+                intent.putExtra("return-data", false);
+                getActivity().startActivityFromFragment(this, intent, REQUEST_PICK_WALLPAPER);
+            } catch (IOException e) {
+                toastLockscreenWallpaperStatus(false);
+            } catch (ActivityNotFoundException e) {
+                toastLockscreenWallpaperStatus(false);
+            }
+        } else if (index == LockscreenBackgroundUtil.LOCKSCREEN_STYLE_DEFAULT) {
+            // Sets background to default
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.LOCKSCREEN_BACKGROUND_STYLE, LockscreenBackgroundUtil.LOCKSCREEN_STYLE_DEFAULT);
+            if (mWallpaper.exists()) {
+                mWallpaper.delete();
+            }
+            updateKeyguardWallpaper();
+            updateBackgroundPreference();
+        }
+    }
+
+    private void toastLockscreenWallpaperStatus(boolean success) {
+        Toast.makeText(getActivity(), getResources().getString(
+                        success ? R.string.background_result_successful
+                                : R.string.background_result_not_successful),
+                Toast.LENGTH_LONG).show();
+    }
+
+    private void updateKeyguardWallpaper() {
+        getActivity().sendBroadcast(new Intent(Intent.ACTION_KEYGUARD_WALLPAPER_CHANGED));
+    }
+
+    private class SaveUserWallpaperTask extends AsyncTask<Uri, Void, Boolean> {
+
+        private Toast mToast;
+
+        @Override
+        protected void onPreExecute() {
+            mToast = Toast.makeText(getActivity(), R.string.setting_lockscreen_background,
+                    Toast.LENGTH_LONG);
+            mToast.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Uri... params) {
+            if (getActivity().isFinishing()) {
+                return false;
+            }
+            FileOutputStream out = null;
+            try {
+                Bitmap wallpaper = getBitmapFromUri(params[0]);
+                if (wallpaper == null) {
+                    return false;
+                }
+                mWallpaper.createNewFile();
+                mWallpaper.setReadable(true, false);
+                out = new FileOutputStream(mWallpaper);
+                wallpaper.compress(Bitmap.CompressFormat.JPEG, 85, out);
+
+                if (mTempWallpaper.exists()) {
+                    mTempWallpaper.delete();
+                }
+                return true;
+            } catch (IOException e) {
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            mToast.cancel();
+            toastLockscreenWallpaperStatus(result);
+            if (result) {
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.LOCKSCREEN_BACKGROUND_STYLE,
+                        LockscreenBackgroundUtil.LOCKSCREEN_STYLE_IMAGE);
+                updateKeyguardWallpaper();
+                updateBackgroundPreference();
+            }
+        }
+    }
 }
