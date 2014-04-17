@@ -268,11 +268,14 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             Settings.System.putInt(cr, Settings.System.LOCKSCREEN_BATTERY_VISIBILITY, value);
             mBatteryStatus.setSummary(mBatteryStatus.getEntries()[index]);
             return true;
+        } else if (preference == mLockBackground) {
+            int index = mLockBackground.findIndexOfValue((String) objValue);
+            handleBackgroundSelection(index);
+            return true;
         } else if (preference == mEnableModLock) {
             boolean value = (Boolean) objValue;
             Settings.System.putInt(cr, Settings.System.LOCKSCREEN_MODLOCK_ENABLED,
                     value ? 1 : 0);
-
             // force it so update picks up correct values
             ((CheckBoxPreference) preference).setChecked(value);
             updateAvailableModLockPreferences();
