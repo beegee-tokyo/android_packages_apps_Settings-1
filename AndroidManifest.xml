@@ -1701,6 +1701,7 @@
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
                 android:resource="@id/interface_animation" />
         </activity>
+        -->
 
         <!-- Others -->
         <activity android:name=".slim.NotificationDrawerStyle" />
