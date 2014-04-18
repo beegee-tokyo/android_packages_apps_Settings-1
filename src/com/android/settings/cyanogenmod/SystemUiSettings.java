@@ -50,6 +50,11 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
     private ListPreference mNavigationBarHeight;
     private ListPreference mNavigationBarWidth;
 
+    // **** BEEGEE_TOKYO_PATCH_START ****
+    private static final String KEY_NAV_BAR_POS = "nav_position";
+    ListPreference mNavPos;
+    // **** BEEGEE_TOKYO_PATCH_END ****
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +62,22 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
         addPreferencesFromResource(R.xml.system_ui_settings);
         PreferenceScreen prefScreen = getPreferenceScreen();
         final ContentResolver resolver = getActivity().getContentResolver();
+
+        // **** BEEGEE_TOKYO_PATCH_START ****
+        // Set listener for Navigation Bar Position ListPreference
+        mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
+        mNavPos.setOnPreferenceChangeListener(this);
+//        View b = findViewById(R.id.navbar_pos_tablet);
+//        b.setVisibility(View.VISIBLE);
+//        b = findViewById(R.id.navbar_pos_notablet);
+//        b.setVisibility(View.GONE);
+//#ifndef OLD_TEGRA
+//        View b = findViewById(R.id.navbar_pos_tablet);
+//        b.setVisibility(View.GONE);
+//        b = findViewById(R.id.navbar_pos_notablet);
+//        b.setVisibility(View.VISIBLE);
+//#endif
+        // **** BEEGEE_TOKYO_PATCH_END ****
 
         // Expanded desktop
         mExpandedDesktopPref = (ListPreference) findPreference(KEY_EXPANDED_DESKTOP);
@@ -130,6 +151,19 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
                     Integer.parseInt((String) objValue));
             return true;
         }
+
+        // **** BEEGEE_TOKYO_PATCH_START ****
+        if (preference == mNavPos) {
+            int mNavPosSel = 2;
+            if (objValue.toString().equals("left")) {
+					mNavPosSel = 0;
+            } else if (objValue.toString().equals("right")) {
+					mNavPosSel = 1;
+            }
+            Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, mNavPosSel);
+            return true;
+        }
+        // **** BEEGEE_TOKYO_PATCH_END ****
         return false;
     }
 

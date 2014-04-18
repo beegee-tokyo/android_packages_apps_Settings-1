@@ -386,4 +386,15 @@
     <!-- Menu Entries in Nameless -> more -->
     <string name="misc_crash_report">Crash Report</string>
     <string name="misc_others">Others</string>
+	 
+<!-- **** BEEGEE_TOKYO_PATCH_START **** -->
+    <!-- Navigation bar position dialog title -->
+    <string name="nav_pos_dialog_title">Navigation bar position</string>
+    <!-- Navigation bar position option -->
+    <string name="nav_pos_option_title">Select your prefered navigation bar position</string>
+    <!-- Navigation bar position default -->
+    <string name="nav_pos_default">center</string>
+    <!-- Navigation bar help title -->
+    <string name="navigation_bar_help_title">Navigation bar help</string>
+<!-- **** BEEGEE_TOKYO_PATCH_END **** -->
 </resources>
