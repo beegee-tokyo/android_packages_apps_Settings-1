@@ -27,6 +27,12 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.view.ViewConfiguration;
 
+// **** BEEGEE_TOKYO_PATCH_START ****
+import android.app.Activity;
+import android.view.View;
+import android.util.Slog;
+// **** BEEGEE_TOKYO_PATCH_END ****
+
 import com.android.internal.util.slim.DeviceUtils;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
@@ -52,31 +58,33 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
 
     // **** BEEGEE_TOKYO_PATCH_START ****
     private static final String KEY_NAV_BAR_POS = "nav_position";
-    ListPreference mNavPos;
+    private ListPreference mNavPos;
     // **** BEEGEE_TOKYO_PATCH_END ****
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.system_ui_settings);
+        // **** BEEGEE_TOKYO_PATCH_START ****
+        String device_type = getResources().getString(R.string.nav_bar_device);
+Slog.d("NavBarPos","device_type = "+device_type);
+        if (device_type.equals("tablet")) {
+				addPreferencesFromResource(R.xml.system_tab_ui_settings);
+		  } else {
+				addPreferencesFromResource(R.xml.system_ui_settings);
+				Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, 4);
+		  }
+        // **** BEEGEE_TOKYO_PATCH_START ****
         PreferenceScreen prefScreen = getPreferenceScreen();
         final ContentResolver resolver = getActivity().getContentResolver();
 
         // **** BEEGEE_TOKYO_PATCH_START ****
         // Set listener for Navigation Bar Position ListPreference
-        mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
-        mNavPos.setOnPreferenceChangeListener(this);
-//        View b = findViewById(R.id.navbar_pos_tablet);
-//        b.setVisibility(View.VISIBLE);
-//        b = findViewById(R.id.navbar_pos_notablet);
-//        b.setVisibility(View.GONE);
-//#ifndef OLD_TEGRA
-//        View b = findViewById(R.id.navbar_pos_tablet);
-//        b.setVisibility(View.GONE);
-//        b = findViewById(R.id.navbar_pos_notablet);
-//        b.setVisibility(View.VISIBLE);
-//#endif
+        if (device_type.equals("tablet")) {
+				mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
+Slog.d("NavBarPos","mNavPos = "+mNavPos);
+				mNavPos.setOnPreferenceChangeListener(this);
+		  }
         // **** BEEGEE_TOKYO_PATCH_END ****
 
         // Expanded desktop
@@ -129,7 +137,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
             // Hide navigation bar category
             prefScreen.removePreference(navbarCat);
         }
-
     }
 
     public boolean onPreferenceChange(Preference preference, Object objValue) {
@@ -161,7 +168,9 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
 					mNavPosSel = 1;
             }
             Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, mNavPosSel);
-            return true;
+Slog.d("NavBarPos","Selected Position = "+mNavPosSel);
+Slog.d("NavBarPos","Selected Position String = "+objValue.toString());
+           return true;
         }
         // **** BEEGEE_TOKYO_PATCH_END ****
         return false;

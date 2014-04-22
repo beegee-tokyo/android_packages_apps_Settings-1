@@ -396,5 +396,7 @@
     <string name="nav_pos_default">center</string>
     <!-- Navigation bar help title -->
     <string name="navigation_bar_help_title">Navigation bar help</string>
+    <!-- Helper to know whether this is for P4 devices or others -->
+	 <string name="nav_bar_device">phone</string>
 <!-- **** BEEGEE_TOKYO_PATCH_END **** -->
 </resources>

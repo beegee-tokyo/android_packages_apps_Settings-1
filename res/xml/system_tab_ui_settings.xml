@@ -78,12 +78,16 @@
             android:fragment="com.android.settings.cyanogenmod.NavRing"
             android:title="@string/navigation_ring_title" />
 
-        <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
-            android:id="@+id/navbar_pos_notablet"
-            android:key="navigation_bar_left"
-            android:title="@string/navigation_bar_left_title"
-            android:summary="@string/navigation_bar_left_summary"
-            android:defaultValue="false" />
+<!-- **** BEEGEE_TOKYO_PATCH_START **** -->
+        <ListPreference
+            android:id="@+id/navbar_pos_tablet"
+            android:title="@string/nav_pos_dialog_title"
+            android:summary="@string/nav_pos_option_title"
+            android:key="nav_position"
+            android:entries="@array/nav_pos_values"
+            android:entryValues="@array/nav_pos_retval"
+            android:defaultValue="@string/nav_pos_default" />
+<!-- **** BEEGEE_TOKYO_PATCH_END **** -->
 
         <ListPreference
             android:key="navigation_bar_height"
