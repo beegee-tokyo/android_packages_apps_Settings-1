@@ -72,15 +72,11 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     private static final String LOCKSCREEN_BACKGROUND_STYLE = "lockscreen_background_style";
     private static final String KEY_LOCKSCREEN_MODLOCK_ENABLED = "lockscreen_modlock_enabled";
 
-    private static final String LOCKSCREEN_WALLPAPER_TEMP_NAME = ".lockwallpaper";
-
-    private static final int REQUEST_PICK_WALLPAPER = 201;
-
     // Nameless Additions
     private static final String KEY_LOCKSCREEN_TORCH = "lockscreen_glowpad_torch";
-    private static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
-    private static final String PREF_LOCKSCREEN_USE_CAROUSEL = "lockscreen_use_widget_container_carousel";
-    private static final String KEY_WIDGETS_CATAGORY = "widgets_catagory";
+
+    private static final int REQUEST_PICK_WALLPAPER = 201;
+    private static final String LOCKSCREEN_WALLPAPER_TEMP_NAME = ".lockwallpaper";
 
     private CheckBoxPreference mEnableKeyguardWidgets;
     private CheckBoxPreference mEnableCameraWidget;
@@ -88,15 +84,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
     private CheckBoxPreference mEnableMaximizeWidgets;
     private ListPreference mLockBackground;
     private ListPreference mBatteryStatus;
-
-
-
-    // Nameless Additions
-    private CheckBoxPreference mLockRingBattery;
-    private PreferenceCategory mWidgetsCatagory;
-    private CheckBoxPreference mLockscreenUseCarousel;
-
-
 
     private ChooseLockSettingsHelper mChooseLockSettingsHelper;
     private LockPatternUtils mLockUtils;
@@ -112,16 +99,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
         mLockUtils = mChooseLockSettingsHelper.utils();
         mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-
-
-        mWidgetsCatagory = (PreferenceCategory) findPreference(KEY_WIDGETS_CATAGORY);
-        mLockscreenUseCarousel = (CheckBoxPreference) findPreference(PREF_LOCKSCREEN_USE_CAROUSEL);
-        if (!showCarousel()) {
-            mWidgetsCatagory.removePreference(mLockscreenUseCarousel);
-        } else {
-            mLockscreenUseCarousel.setChecked(Settings.System.getInt(getContentResolver(),
-                Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL, 0) == 1);
-        }
 
         // Find categories
         PreferenceCategory generalCategory = (PreferenceCategory)
@@ -246,13 +223,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         if (mEnableMaximizeWidgets != null) {
             mEnableMaximizeWidgets.setEnabled(enabled);
         }
-        // Add the additional Omni settings
-        mLockRingBattery = (CheckBoxPreference) findPreference(
-                BATTERY_AROUND_LOCKSCREEN_RING);
-        if (mLockRingBattery != null) {
-            mLockRingBattery.setChecked(Settings.System.getInt(getContentResolver(),
-                    Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, 0) == 1);
-        }
 
     }
 
@@ -271,14 +241,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         } else if (KEY_ENABLE_CAMERA.equals(key)) {
             mLockUtils.setCameraEnabled(mEnableCameraWidget.isChecked());
             return true;
-        } else if (preference == mLockRingBattery) {
-            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
-                    Settings.System.BATTERY_AROUND_LOCKSCREEN_RING, mLockRingBattery.isChecked() ? 1 : 0);
-            return true;
-        } else if (preference == mLockscreenUseCarousel) {
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.LOCKSCREEN_USE_WIDGET_CONTAINER_CAROUSEL,
-                    mLockscreenUseCarousel.isChecked() ? 1 : 0);
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -346,10 +308,6 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         return (mDPM.getKeyguardDisabledFeatures(null) & feature) != 0;
     }
 
-    public boolean showCarousel() {
-        return !getResources().getBoolean(R.bool.config_show_carousel);
-    }
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_PICK_WALLPAPER) {
             if (resultCode == Activity.RESULT_OK) {
@@ -357,9 +315,9 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
                 if (uri == null) {
                     uri = Uri.fromFile(mTempWallpaper);
                 }
-                new SaveUserWallpaperTask().execute(uri);
+                new SaveUserWallpaperTask(getActivity().getApplicationContext()).execute(uri);
             } else {
-                toastLockscreenWallpaperStatus(false);
+                toastLockscreenWallpaperStatus(getActivity(), false);
             }
         }
     }
@@ -415,9 +373,9 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
                 intent.putExtra("return-data", false);
                 getActivity().startActivityFromFragment(this, intent, REQUEST_PICK_WALLPAPER);
             } catch (IOException e) {
-                toastLockscreenWallpaperStatus(false);
+                toastLockscreenWallpaperStatus(getActivity(), false);
             } catch (ActivityNotFoundException e) {
-                toastLockscreenWallpaperStatus(false);
+                toastLockscreenWallpaperStatus(getActivity(), false);
             }
         } else if (index == LockscreenBackgroundUtil.LOCKSCREEN_STYLE_DEFAULT) {
             // Sets background to default
@@ -426,25 +384,30 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
             if (mWallpaper.exists()) {
                 mWallpaper.delete();
             }
-            updateKeyguardWallpaper();
+            updateKeyguardWallpaper(getActivity());
             updateBackgroundPreference();
         }
     }
 
-    private void toastLockscreenWallpaperStatus(boolean success) {
-        Toast.makeText(getActivity(), getResources().getString(
-                        success ? R.string.background_result_successful
-                                : R.string.background_result_not_successful),
+    private static void toastLockscreenWallpaperStatus(Context context, boolean success) {
+        Toast.makeText(context, context.getResources().getString(
+                success ? R.string.background_result_successful
+                        : R.string.background_result_not_successful),
                 Toast.LENGTH_LONG).show();
     }
 
-    private void updateKeyguardWallpaper() {
-        getActivity().sendBroadcast(new Intent(Intent.ACTION_KEYGUARD_WALLPAPER_CHANGED));
+    private static void updateKeyguardWallpaper(Context context) {
+        context.sendBroadcast(new Intent(Intent.ACTION_KEYGUARD_WALLPAPER_CHANGED));
     }
 
     private class SaveUserWallpaperTask extends AsyncTask<Uri, Void, Boolean> {
 
         private Toast mToast;
+        Context mContext;
+
+        public SaveUserWallpaperTask(Context ctx) {
+            mContext = ctx;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -488,13 +451,15 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements
         @Override
         protected void onPostExecute(Boolean result) {
             mToast.cancel();
-            toastLockscreenWallpaperStatus(result);
+            toastLockscreenWallpaperStatus(mContext, result);
             if (result) {
                 Settings.System.putInt(getContentResolver(),
                         Settings.System.LOCKSCREEN_BACKGROUND_STYLE,
                         LockscreenBackgroundUtil.LOCKSCREEN_STYLE_IMAGE);
-                updateKeyguardWallpaper();
-                updateBackgroundPreference();
+                updateKeyguardWallpaper(mContext);
+                if (!isDetached()) {
+                    updateBackgroundPreference();
+                }
             }
         }
     }

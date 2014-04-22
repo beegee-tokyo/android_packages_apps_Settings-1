@@ -19,6 +19,7 @@ package com.android.settings;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -92,6 +93,7 @@ import com.android.settings.inputmethod.SpellCheckersSettings;
 import com.android.settings.inputmethod.UserDictionaryList;
 import com.android.settings.location.LocationEnabler;
 import com.android.settings.location.LocationSettings;
+import com.android.settings.nameless.utils.Helpers;
 import com.android.settings.net.MobileDataEnabler;
 import com.android.settings.nfc.AndroidBeam;
 import com.android.settings.nfc.PaymentSettings;
@@ -269,9 +271,21 @@ public class Settings extends PreferenceActivity
 
         // Override up navigation for multi-pane, since we handle it in the fragment breadcrumbs
         if (onIsMultiPane()) {
-            getActionBar().setDisplayHomeAsUpEnabled(false);
-            getActionBar().setHomeButtonEnabled(false);
+            final ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setHomeButtonEnabled(false);
+            }
         }
+    }
+
+    @Override
+    public boolean onIsMultiPane() {
+        if (android.provider.Settings.Nameless.getBoolean(getContentResolver(),
+                android.provider.Settings.Nameless.FORCE_MULTI_PANE, false)) {
+            return true;
+        }
+        return super.onIsMultiPane();
     }
 
     @Override
@@ -394,7 +408,10 @@ public class Settings extends PreferenceActivity
         com.android.settings.cyanogenmod.PrivacySettings.class.getName(),
         com.android.settings.quicksettings.QuickSettingsTiles.class.getName(),
         com.android.settings.cyanogenmod.QuietHours.class.getName(),
-        com.android.settings.quicksettings.QuickSettingsTiles.class.getName()
+        com.android.settings.nameless.secret.CrazyLabSettings.class.getName(),
+        com.android.settings.nameless.InterfaceMoreSettings.class.getName(),
+        com.android.settings.nameless.NamelessMoreSettings.class.getName(),
+        com.android.settings.nameless.interfacesettings.AnimationInterfaceSettings.class.getName()
     };
 
     @Override
@@ -651,10 +668,12 @@ public class Settings extends PreferenceActivity
                     target.remove(i);
                 }
             } else if (id == R.id.user_settings) {
-                if (!UserHandle.MU_ENABLED
-                        || !UserManager.supportsMultipleUsers()
-                        || Utils.isMonkeyRunning()) {
-                    target.remove(i);
+                if (!Helpers.isSecretModeEnabled()) {
+                    if (!UserHandle.MU_ENABLED
+                            || !UserManager.supportsMultipleUsers()
+                            || Utils.isMonkeyRunning()) {
+                        target.remove(i);
+                    }
                 }
             } else if (id == R.id.nfc_payment_settings) {
                 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_NFC)) {
@@ -695,11 +714,19 @@ public class Settings extends PreferenceActivity
                 } else {
                     target.remove(i);
                 }
+            } else if (id == R.id.crazy_lab) {
+                if (!Helpers.isSecretModeEnabled()) {
+                    target.remove(i);
+                }
             } else if (id == R.id.supersu_settings) {
                 // Embedding into Settings is supported from SuperSU v1.85 and up
                 boolean supported = false;
                 try {
-                    supported = (getPackageManager().getPackageInfo("eu.chainfire.supersu", 0).versionCode >= 185);
+                    final PackageManager pm = getPackageManager();
+                    if (pm != null) {
+                        supported =
+                                (pm.getPackageInfo("eu.chainfire.supersu", 0).versionCode >= 185);
+                    }
                 } catch (PackageManager.NameNotFoundException e) {
                 }
                 if (!supported) {
@@ -1154,7 +1181,7 @@ public class Settings extends PreferenceActivity
 
         // a temp hack while we prepare to switch
         // to the new theme chooser.
-        if (header.id == R.id.theme_settings) {
+        if (header.id == R.id.theme_settings && !Helpers.isSecretModeEnabled()) {
             try {
                 Intent intent = new Intent();
                 intent.setClassName("com.tmobile.themechooser", "com.tmobile.themechooser.ThemeChooser");
@@ -1178,9 +1205,7 @@ public class Settings extends PreferenceActivity
     public boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref) {
         // Override the fragment title for Wallpaper settings
         int titleRes = pref.getTitleRes();
-        if (pref.getFragment().equals(WallpaperTypeSettings.class.getName())) {
-            titleRes = R.string.wallpaper_settings_fragment_title;
-        } else if (pref.getFragment().equals(OwnerInfoSettings.class.getName())
+        if (pref.getFragment().equals(OwnerInfoSettings.class.getName())
                 && UserHandle.myUserId() != UserHandle.USER_OWNER) {
             if (UserManager.get(this).isLinkedUser()) {
                 titleRes = R.string.profile_info_settings_title;
@@ -1305,4 +1330,5 @@ public class Settings extends PreferenceActivity
     /* NamelessROM */
     public static class AnimationInterfaceSettingsActivity extends Settings { /* empty */ }
     public static class MoreInterfaceSettingsActivity extends Settings { /* empty */ }
+    public static class CrazyLabSettingsActivity extends Settings { /* empty */ }
 }
