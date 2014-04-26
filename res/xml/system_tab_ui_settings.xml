@@ -107,23 +107,6 @@
 
     </PreferenceCategory>
 	 
-	 <!-- temporary workaround for Nameless settings incompatible with tablet -->
-    <PreferenceCategory
-         android:title="@string/theme_settings_title">
- 
-         <!-- Themes -->
-         <Preference
-             android:id="@+id/themes_settings"
-             android:icon="@drawable/ic_settings_themes"
-             android:title="@string/themes_settings_title">
-             <intent
-                 android:action="android.intent.action.MAIN"
-                 android:targetPackage="com.tmobile.themechooser"
-                 android:targetClass="com.tmobile.themechooser.ThemeChooser" />
-         </Preference>
- 
-     </PreferenceCategory>
- 
      <PreferenceCategory
          android:key="category_recent_panel"
          android:title="@string/system_ui_recent_panel_title">

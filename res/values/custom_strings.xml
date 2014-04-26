@@ -406,6 +406,10 @@
     <!-- Navigation bar help title -->
     <string name="navigation_bar_help_title">Navigation bar help</string>
     <!-- Helper to know whether this is for P4 devices or others -->
-	 <string name="nav_bar_device">phone</string>
+    <string name="nav_bar_device">phone</string>
+    <!-- Enable navigation bar in status bar dialog title -->
+    <string name="status_bar_show_nav_title">Enable Navigation in status bar</string>
+    <!-- Enable navigation bar in status bar checkbox-->
+    <string name="status_bar_show_nav_summary">Only when extended desktop is active</string>
 <!-- **** BEEGEE_TOKYO_PATCH_END **** -->
 </resources>
