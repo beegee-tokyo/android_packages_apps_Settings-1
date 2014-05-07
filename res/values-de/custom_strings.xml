@@ -309,4 +309,16 @@
   <string name="disable_fc_notifications_summary">Dadurch werden alle Force-Close Benachrichtigungen ausgeblendet</string>
   <string name="misc_crash_report">Fehlerbericht</string>
   <string name="misc_others">Sonstiges</string>
+<!-- **** BEEGEE_TOKYO_PATCH_START **** -->
+    <!-- Navigation bar position dialog title -->
+    <string name="nav_pos_dialog_title">Position Navigationsleiste</string>
+    <!-- Navigation bar position option -->
+    <string name="nav_pos_option_title">Waehle die Position der Navigation</string>
+    <!-- Navigation bar help title -->
+    <string name="navigation_bar_help_title">Navigationsleiste Hilfe</string>
+    <!-- Enable navigation bar in status bar dialog title -->
+    <string name="status_bar_show_nav_title">Aktiviere Navigationsleiste in der Statusleiste</string>
+    <!-- Enable navigation bar in status bar checkbox-->
+    <string name="status_bar_show_nav_summary">Nur wenn erweiterte Ansicht aktiv ist</string>
+<!-- **** BEEGEE_TOKYO_PATCH_END **** -->
 </resources>
