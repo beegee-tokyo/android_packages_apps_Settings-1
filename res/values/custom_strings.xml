@@ -395,8 +395,9 @@
     <!-- Privacy Guard Notification -->
     <string name="privacy_guard_notification_title">Notification</string>
     <string name="privacy_guard_notification_summary">Show notification if privacy guard is active.</string>
-<<<<<<< HEAD
-	 
+
+    <string name="wallpaper_picker_not_found">Could not launch wallpaper picker</string>
+
 <!-- **** BEEGEE_TOKYO_PATCH_START **** -->
     <!-- Navigation bar position dialog title -->
     <string name="nav_pos_dialog_title">Navigation bar position</string>
@@ -413,8 +414,4 @@
     <!-- Enable navigation bar in status bar checkbox-->
     <string name="status_bar_show_nav_summary">Only when extended desktop is active</string>
 <!-- **** BEEGEE_TOKYO_PATCH_END **** -->
-=======
-
-    <string name="wallpaper_picker_not_found">Could not launch wallpaper picker</string>
->>>>>>> upstream/android-4.4
 </resources>
