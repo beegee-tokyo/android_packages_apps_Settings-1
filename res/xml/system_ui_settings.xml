@@ -37,19 +37,7 @@
         android:fragment="com.android.settings.quicksettings.QuickSettings"
         android:title="@string/quick_settings_panel_title" />
 
-    <ListPreference
-            android:key="expanded_desktop"
-            android:title="@string/power_menu_expanded_desktop"
-            android:entries="@array/expanded_desktop_entries"
-            android:entryValues="@array/expanded_desktop_values"
-            android:persistent="false" />
-
-    <CheckBoxPreference
-            android:key="expanded_desktop_no_navbar"
-            android:title="@string/power_menu_expanded_desktop"
-            android:persistent="true" />
-
-    <!-- Device Specific Touchscreen gestures -->
+    <!-- Device Specific Touchscreen gestures. Avoid duplicating CMHW functionality, please -->
     <Preference
         android:key="touch_screen_gesture_settings">
         <intent
@@ -63,6 +51,24 @@
         android:title="@string/navbar_force_enable_title"
         android:summary="@string/navbar_force_enable_summary"
         android:defaultValue="false" />
+
+    <PreferenceCategory
+            android:key="expanded_desktop_category"
+            android:title="@string/power_menu_expanded_desktop" >
+
+        <ListPreference
+                android:key="expanded_desktop"
+                android:title="@string/expanded_desktop_style"
+                android:entries="@array/expanded_desktop_entries"
+                android:entryValues="@array/expanded_desktop_values"
+                android:persistent="false" />
+
+        <CheckBoxPreference
+                android:key="expanded_desktop_no_navbar"
+                android:title="@string/power_menu_expanded_desktop"
+                android:persistent="true" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="navigation_bar"
