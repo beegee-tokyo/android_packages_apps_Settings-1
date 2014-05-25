@@ -19,12 +19,9 @@
 <resources>
 
     <!-- Nameless Dummy Maintainer -->
-    <string name="maintainers_nameless_name">NamelessRom</string>
-    <string name="maintainers_nameless_github">https://github.com/NamelessRom</string>
-    <string name="maintainers_nameless_email">namelessromofficial@gmail.com</string>
-    <string name="maintainers_beegee_name">BeeGee</string>
-    <string name="maintainers_beegee_github">https://github.com/beegee-tokyo</string>
-    <string name="maintainers_beegee_email">bernd@giesecke.tk</string>
+    <string name="maintainers_nameless_name">BeeGee</string>
+    <string name="maintainers_nameless_github">https://github.com/beegee-tokyo</string>
+    <string name="maintainers_nameless_email">bernd@giesecke.tk</string>
     <!-- Team List -->
     <string name="maintainers_evisceration_name" translatable="false">Evisceration</string>
     <string name="maintainers_evisceration_github" translatable="false">https://github.com/Evisceration</string>
