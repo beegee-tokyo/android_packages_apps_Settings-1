@@ -74,7 +74,7 @@ Slog.d("NavBarPos","device_type = "+device_type);
 				addPreferencesFromResource(R.xml.system_ui_settings);
 				Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, 4);
 		  }
-        // **** BEEGEE_TOKYO_PATCH_START ****
+        // **** BEEGEE_TOKYO_PATCH_END ****
         PreferenceScreen prefScreen = getPreferenceScreen();
         final ContentResolver resolver = getActivity().getContentResolver();
 
@@ -137,6 +137,7 @@ Slog.d("NavBarPos","mNavPos = "+mNavPos);
             // Hide navigation bar category
             prefScreen.removePreference(navbarCat);
         }
+
     }
 
     public boolean onPreferenceChange(Preference preference, Object objValue) {
