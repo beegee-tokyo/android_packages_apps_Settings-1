@@ -312,7 +312,7 @@
         <item>@string/volume_steps_5</item>
     </string-array>
 
-    <!-- **** BEEGEE_TOKYO_PATCH_START **** -->
+    <!-- **** BEEGEE_CHANGE_START **** -->
     <!-- There is a setting to control the position of the navigation bar if tablet_ui is not active. -->
     <string-array name="nav_pos_values" translatable="false">
         <item>left</item>
@@ -324,6 +324,6 @@
         <item>center</item>
         <item>right</item>
     </string-array>
-    <!-- **** BEEGEE_TOKYO_PATCH_END **** -->
-  
+    <!-- **** BEEGEE_CHANGE_END **** -->
+
 </resources>

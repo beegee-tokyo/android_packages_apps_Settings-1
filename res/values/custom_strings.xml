@@ -405,7 +405,7 @@
     <string name="force_highend_gfx_title">Force high-end graphics</string>
     <string name="force_highend_gfx_summary">Enables high-end visual effects such as transparent status/navigation bar (requires reboot)</string>
 
-<!-- **** BEEGEE_TOKYO_PATCH_START **** -->
+<!-- **** BEEGEE_PATCH_START **** -->
     <!-- Navigation bar position dialog title -->
     <string name="nav_pos_dialog_title">Navigation bar position</string>
     <!-- Navigation bar position option -->
@@ -414,11 +414,9 @@
     <string name="nav_pos_default">center</string>
     <!-- Navigation bar help title -->
     <string name="navigation_bar_help_title">Navigation bar help</string>
-    <!-- Helper to know whether this is for P4 devices or others -->
-    <string name="nav_bar_device">phone</string>
     <!-- Enable navigation bar in status bar dialog title -->
     <string name="status_bar_show_nav_title">Enable Navigation in status bar</string>
     <!-- Enable navigation bar in status bar checkbox-->
     <string name="status_bar_show_nav_summary">Only when extended desktop is active</string>
-<!-- **** BEEGEE_TOKYO_PATCH_END **** -->
+<!-- **** BEEGEE_PATCH_END **** -->
 </resources>

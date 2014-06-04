@@ -27,11 +27,12 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.view.ViewConfiguration;
 
-// **** BEEGEE_TOKYO_PATCH_START ****
+// **** BEEGEE_PATCH_START ****
 import android.app.Activity;
 import android.view.View;
 import android.util.Slog;
-// **** BEEGEE_TOKYO_PATCH_END ****
+import com.android.settings.Utils;
+// **** BEEGEE_PATCH_END ****
 
 import com.android.internal.util.slim.DeviceUtils;
 import com.android.settings.R;
@@ -56,36 +57,19 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
     private ListPreference mNavigationBarHeight;
     private ListPreference mNavigationBarWidth;
 
-    // **** BEEGEE_TOKYO_PATCH_START ****
+    // **** BEEGEE_PATCH_START ****
     private static final String KEY_NAV_BAR_POS = "nav_position";
+    private static final String KEY_NAV_BAR_LEFT = "navigation_bar_left";
     private ListPreference mNavPos;
-    // **** BEEGEE_TOKYO_PATCH_END ****
+    // **** BEEGEE_PATCH_END ****
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // **** BEEGEE_TOKYO_PATCH_START ****
-        String device_type = getResources().getString(R.string.nav_bar_device);
-Slog.d("NavBarPos","device_type = "+device_type);
-        if (device_type.equals("tablet")) {
-				addPreferencesFromResource(R.xml.system_tab_ui_settings);
-		  } else {
-				addPreferencesFromResource(R.xml.system_ui_settings);
-				Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, 4);
-		  }
-        // **** BEEGEE_TOKYO_PATCH_END ****
+        addPreferencesFromResource(R.xml.system_ui_settings);
         PreferenceScreen prefScreen = getPreferenceScreen();
         final ContentResolver resolver = getActivity().getContentResolver();
-
-        // **** BEEGEE_TOKYO_PATCH_START ****
-        // Set listener for Navigation Bar Position ListPreference
-        if (device_type.equals("tablet")) {
-				mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
-Slog.d("NavBarPos","mNavPos = "+mNavPos);
-				mNavPos.setOnPreferenceChangeListener(this);
-		  }
-        // **** BEEGEE_TOKYO_PATCH_END ****
 
         // Expanded desktop
         mExpandedDesktopPref = (ListPreference) findPreference(KEY_EXPANDED_DESKTOP);
@@ -106,6 +90,20 @@ Slog.d("NavBarPos","mNavPos = "+mNavPos);
                 prefScreen.removePreference(pref);
             }
         }
+        
+        /**** BEEGEE_PATCH_START ****/
+        mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
+        CheckBoxPreference mNavbarleft = (CheckBoxPreference) prefScreen.findPreference(KEY_NAV_BAR_LEFT);
+        PreferenceCategory notificationsCategory = (PreferenceCategory) findPreference("navigation_bar");
+//Slog.d("NavBarPos","device_type = "+device_type);
+        if (Utils.isTablet(getActivity())) {
+            notificationsCategory.removePreference(mNavbarleft);
+            Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, 4);
+            mNavPos.setOnPreferenceChangeListener(this);
+        } else {
+            notificationsCategory.removePreference(mNavPos);
+        }
+        /**** BEEGEE_PATCH_END ****/
 
         // Allows us to support devices, which have the navigation bar force enabled.
         final boolean hasNavBar = !ViewConfiguration.get(getActivity()).hasPermanentMenuKey();
@@ -160,7 +158,7 @@ Slog.d("NavBarPos","mNavPos = "+mNavPos);
             return true;
         }
 
-        // **** BEEGEE_TOKYO_PATCH_START ****
+        // **** BEEGEE_PATCH_START ****
         if (preference == mNavPos) {
             int mNavPosSel = 2;
             if (objValue.toString().equals("left")) {
@@ -169,11 +167,11 @@ Slog.d("NavBarPos","mNavPos = "+mNavPos);
 					mNavPosSel = 1;
             }
             Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, mNavPosSel);
-Slog.d("NavBarPos","Selected Position = "+mNavPosSel);
-Slog.d("NavBarPos","Selected Position String = "+objValue.toString());
+//Slog.d("NavBarPos","Selected Position = "+mNavPosSel);
+//Slog.d("NavBarPos","Selected Position String = "+objValue.toString());
            return true;
         }
-        // **** BEEGEE_TOKYO_PATCH_END ****
+        // **** BEEGEE_PATCH_END ****
         return false;
     }
 

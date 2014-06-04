@@ -189,7 +189,9 @@ public class Settings extends PreferenceActivity
             R.id.lock_screen_settings,
             R.id.system_settings,
             R.id.privacy_settings_cyanogenmod,
+            // **** BEEGEE_PATCH_START ****
             R.id.development_settings,
+            // **** BEEGEE_PATCH_END ****
             R.id.button_settings
     };
 

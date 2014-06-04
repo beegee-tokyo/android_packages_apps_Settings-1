@@ -53,10 +53,10 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
     private CheckBoxPreference mStatusBarNetworkActivity;
     private CheckBoxPreference mStatusBarTraffic;
 
-/**** BEEGEE_TOKYO_PATCH_START ****/
+/**** BEEGEE_PATCH_START ****/
     private static final String STATUS_BAR_NAVI = "status_bar_show_nav";
     private CheckBoxPreference mStatusBarNav;
-/**** BEEGEE_TOKYO_PATCH_END ****/
+/**** BEEGEE_PATCH_END ****/
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,9 +72,9 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
                 (CheckBoxPreference) prefSet.findPreference(STATUS_BAR_BATTERY_SHOW_PERCENT);
         mStatusBarCmSignal = (ListPreference) prefSet.findPreference(STATUS_BAR_SIGNAL);
 
-/**** BEEGEE_TOKYO_PATCH_START ****/
+/**** BEEGEE_PATCH_START ****/
         mStatusBarNav = (CheckBoxPreference) prefSet.findPreference(STATUS_BAR_NAVI);
-/**** BEEGEE_TOKYO_PATCH_END ****/
+/**** BEEGEE_PATCH_END ****/
 
         CheckBoxPreference statusBarBrightnessControl = (CheckBoxPreference)
                 prefSet.findPreference(Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL);
@@ -116,7 +116,7 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
         mStatusBarTraffic.setChecked(intState > 0);
         mStatusBarTraffic.setOnPreferenceChangeListener(this);
 
-/** BEEGEE_TOKYO_PATCH_START **/
+/** BEEGEE_PATCH_START **/
 /** Enable brightness control by swiping on the status bar for tablets! **/
 //        if (Utils.isTablet(getActivity())) {
 //            prefSet.removePreference(statusBarBrightnessControl);
@@ -128,7 +128,7 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
                 prefSet.removePreference(mStatusBarNav);
                 Settings.System.putInt(resolver, Settings.System.STATUS_BAR_NAVIGATION, 1);
         }
-/** BEEGEE_TOKYO_PATCH_END **/
+/** BEEGEE_PATCH_END **/
 
         enableStatusBarBatteryDependents(mStatusBarBattery.getValue());
 
@@ -168,7 +168,7 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
             intState = setStatusBarTrafficSummary(intState);
             Settings.System.putInt(resolver, Settings.System.STATUS_BAR_TRAFFIC, intState);
             return intState <= 1;
-/** BEEGEE_TOKYO_PATCH_START **/
+/** BEEGEE_PATCH_START **/
         } else if (preference == mStatusBarNav) {
             if (newValue.toString().equals("true")) {
                     Settings.System.putInt(resolver, Settings.System.STATUS_BAR_NAVIGATION, 0);
@@ -178,7 +178,7 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
             int StatusBarNavValue = Settings.System.getInt(resolver,
                     Settings.System.STATUS_BAR_NAVIGATION, 0);
             return true;
- /** BEEGEE_TOKYO_PATCH_END **/
+ /** BEEGEE_PATCH_END **/
         }
 
         return false;

@@ -1673,7 +1673,6 @@
         />
 
         <!-- NamelessROM activities Start -->
-        <!-- temporary disabled
         <activity android:name="Settings$MoreInterfaceSettingsActivity"
             android:label="@string/more_device_controls_title"
             android:taskAffinity=""
@@ -1703,7 +1702,6 @@
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
                 android:resource="@id/interface_animation" />
         </activity>
-        -->
 
         <!-- Others -->
         <activity android:name=".slim.NotificationDrawerStyle" />

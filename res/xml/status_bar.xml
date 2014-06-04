@@ -54,14 +54,14 @@
         android:inputType="textNoSuggestions"
         android:persistent="false" />
 
-<!-- **** BEEGEE_TOKYO_PATCH_START **** -->
+<!-- **** BEEGEE_PATCH_START **** -->
     <!-- Enable navigation bar in status bar -->
     <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
         android:key="status_bar_show_nav"
         android:title="@string/status_bar_show_nav_title"
         android:summary="@string/status_bar_show_nav_summary"
         android:defaultValue="false" />
-<!-- **** BEEGEE_TOKYO_PATCH_END **** -->
+<!-- **** BEEGEE_PATCH_END **** -->
 
     <PreferenceCategory
             android:key="breathing_notifications_title"
