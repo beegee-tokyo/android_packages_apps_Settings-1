@@ -240,7 +240,7 @@ public class Settings extends PreferenceActivity
                     .apply();
 // **** BEEGEE_PATCH_END ****
 
- mDevelopmentPreferences = getSharedPreferences(DevelopmentSettings.PREF_FILE,
+        mDevelopmentPreferences = getSharedPreferences(DevelopmentSettings.PREF_FILE,
                 Context.MODE_PRIVATE);
 
         getMetaData();
