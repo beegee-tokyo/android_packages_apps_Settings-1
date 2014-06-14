@@ -5,20 +5,14 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.UserManager;
 import android.preference.*;
 import android.provider.Settings;
-import android.util.Log;
 import com.android.internal.widget.LockPatternUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static android.provider.Settings.System.SCREEN_OFF_TIMEOUT;
 
 public class LockscreenSecuritySettings extends RestrictedSettingsFragment
         implements Preference.OnPreferenceChangeListener {
@@ -39,7 +33,8 @@ public class LockscreenSecuritySettings extends RestrictedSettingsFragment
     private static final int CONFIRM_EXISTING_FOR_BIOMETRIC_WEAK_IMPROVE_REQUEST = 124;
     private static final int CONFIRM_EXISTING_FOR_BIOMETRIC_WEAK_LIVELINESS_OFF = 125;
 
-    // CM Attirbutes
+    // CM Attributes
+    private static final String SLIDE_LOCK_CATEGORY = "delay_and_timeout";
     private static final String SLIDE_LOCK_TIMEOUT_DELAY = "slide_lock_timeout_delay";
     private static final String SLIDE_LOCK_SCREENOFF_DELAY = "slide_lock_screenoff_delay";
 
@@ -50,6 +45,8 @@ public class LockscreenSecuritySettings extends RestrictedSettingsFragment
     private CheckBoxPreference mVisiblePattern;
     private CheckBoxPreference mVisibleErrorPattern;
     private CheckBoxPreference mVisibleDots;
+
+    private boolean mIsSlideLockDelay = false;
 
     private ListPreference mSlideLockTimeoutDelay;
     private ListPreference mSlideLockScreenOffDelay;
@@ -73,6 +70,7 @@ public class LockscreenSecuritySettings extends RestrictedSettingsFragment
         }
         addPreferencesFromResource(R.xml.security_settings);
         root = getPreferenceScreen();
+        PreferenceGroup category;
 
         final ContentResolver resolver = getContentResolver();
 
@@ -109,24 +107,39 @@ public class LockscreenSecuritySettings extends RestrictedSettingsFragment
         }
         addPreferencesFromResource(resid);
 
+        mIsSlideLockDelay = (resid == R.xml.security_settings_chooser);
+
         if (!mLockPatternUtils.isLockScreenDisabled()) {
             addPreferencesFromResource(R.xml.security_settings_slide_delay_cyanogenmod);
+            category = (PreferenceCategory) root.findPreference(SLIDE_LOCK_CATEGORY);
 
             mSlideLockTimeoutDelay = (ListPreference) root
                     .findPreference(SLIDE_LOCK_TIMEOUT_DELAY);
-            int slideTimeoutDelay = android.provider.Settings.System.getInt(resolver,
-                    android.provider.Settings.System.SCREEN_LOCK_SLIDE_TIMEOUT_DELAY, 5000);
+            final int slideTimeoutDelay;
+            if (mIsSlideLockDelay) {
+                slideTimeoutDelay = Settings.System.getInt(resolver,
+                        Settings.System.SCREEN_LOCK_SLIDE_TIMEOUT_DELAY, 5000);
+            } else {
+                slideTimeoutDelay = Settings.Secure.getInt(resolver,
+                        Settings.Secure.LOCK_SCREEN_LOCK_AFTER_TIMEOUT, 5000);
+            }
             mSlideLockTimeoutDelay.setValue(String.valueOf(slideTimeoutDelay));
             updateSlideAfterTimeoutSummary();
             mSlideLockTimeoutDelay.setOnPreferenceChangeListener(this);
 
             mSlideLockScreenOffDelay = (ListPreference) root
                     .findPreference(SLIDE_LOCK_SCREENOFF_DELAY);
-            int slideScreenOffDelay = android.provider.Settings.System.getInt(resolver,
-                    android.provider.Settings.System.SCREEN_LOCK_SLIDE_SCREENOFF_DELAY, 0);
-            mSlideLockScreenOffDelay.setValue(String.valueOf(slideScreenOffDelay));
-            updateSlideAfterScreenOffSummary();
-            mSlideLockScreenOffDelay.setOnPreferenceChangeListener(this);
+            if (mSlideLockScreenOffDelay != null) {
+                if (!mIsSlideLockDelay && category != null) {
+                    category.removePreference(mSlideLockScreenOffDelay);
+                } else {
+                    final int slideScreenOffDelay = Settings.System.getInt(resolver,
+                            Settings.System.SCREEN_LOCK_SLIDE_SCREENOFF_DELAY, 0);
+                    mSlideLockScreenOffDelay.setValue(String.valueOf(slideScreenOffDelay));
+                    updateSlideAfterScreenOffSummary();
+                    mSlideLockScreenOffDelay.setOnPreferenceChangeListener(this);
+                }
+            }
         }
 
         // biometric weak liveliness
@@ -146,17 +159,17 @@ public class LockscreenSecuritySettings extends RestrictedSettingsFragment
         if (resid == R.xml.security_settings_biometric_weak &&
                 mLockPatternUtils.getKeyguardStoredPasswordQuality() !=
                         DevicePolicyManager.PASSWORD_QUALITY_SOMETHING) {
-            PreferenceGroup securityCategory = (PreferenceGroup)
+            category = (PreferenceGroup)
                     root.findPreference(KEY_SECURITY_CATEGORY);
-            if (securityCategory != null) {
+            if (category != null) {
                 if (mVisiblePattern != null) {
-                    securityCategory.removePreference(mVisiblePattern);
+                    category.removePreference(mVisiblePattern);
                 }
                 if (mVisibleErrorPattern != null) {
-                    securityCategory.removePreference(mVisibleErrorPattern);
+                    category.removePreference(mVisibleErrorPattern);
                 }
                 if (mVisibleDots != null) {
-                    securityCategory.removePreference(mVisibleDots);
+                    category.removePreference(mVisibleDots);
                 }
             }
         }
@@ -307,8 +320,13 @@ public class LockscreenSecuritySettings extends RestrictedSettingsFragment
     public boolean onPreferenceChange(Preference preference, Object value) {
         if (preference == mSlideLockTimeoutDelay) {
             int slideTimeoutDelay = Integer.valueOf((String) value);
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.SCREEN_LOCK_SLIDE_TIMEOUT_DELAY, slideTimeoutDelay);
+            if (mIsSlideLockDelay) {
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.SCREEN_LOCK_SLIDE_TIMEOUT_DELAY, slideTimeoutDelay);
+            } else {
+                Settings.Secure.putInt(getContentResolver(),
+                        Settings.Secure.LOCK_SCREEN_LOCK_AFTER_TIMEOUT, slideTimeoutDelay);
+            }
             updateSlideAfterTimeoutSummary();
         } else if (preference == mSlideLockScreenOffDelay) {
             int slideScreenOffDelay = Integer.valueOf((String) value);
