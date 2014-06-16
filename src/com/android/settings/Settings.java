@@ -189,6 +189,9 @@ public class Settings extends PreferenceActivity
             R.id.lock_screen_settings,
             R.id.system_settings,
             R.id.privacy_settings_cyanogenmod,
+            // **** BEEGEE_PATCH_START ****
+            R.id.development_settings,
+            // **** BEEGEE_PATCH_END ****
             R.id.button_settings
     };
 
@@ -229,6 +232,13 @@ public class Settings extends PreferenceActivity
         mAuthenticatorHelper = new AuthenticatorHelper();
         mAuthenticatorHelper.updateAuthDescriptions(this);
         mAuthenticatorHelper.onAccountsUpdated(this, null);
+
+// **** BEEGEE_PATCH_START ****
+// Development settings always visible
+        getSharedPreferences(DevelopmentSettings.PREF_FILE, Context.MODE_PRIVATE).edit()
+                    .putBoolean(DevelopmentSettings.PREF_SHOW, true)
+                    .apply();
+// **** BEEGEE_PATCH_END ****
 
         mDevelopmentPreferences = getSharedPreferences(DevelopmentSettings.PREF_FILE,
                 Context.MODE_PRIVATE);
