@@ -57,6 +57,11 @@
 
         </PreferenceCategory>
 
+        <CheckBoxPreference
+            android:key="double_tap_wake_gesture"
+            android:title="@string/double_tap_to_wake_title"
+            android:defaultValue="false" />
+
         <PreferenceCategory
             android:key="lights_prefs"
             android:title="@string/lights_category_title">
@@ -100,6 +105,20 @@
                 android:title="@string/screen_animation_style_title"
                 android:entries="@array/screen_animation_style_entries"
                 android:entryValues="@array/screen_animation_style_values" />
+
+            <com.android.settings.hardware.DisplayColor
+                android:key="color_calibration"
+                android:title="@string/color_calibration_title"
+                android:dialogTitle="@string/color_calibration_title"
+                android:summary="@string/color_calibration_summary"
+                android:persistent="false" />
+
+            <com.android.settings.hardware.DisplayGamma
+                android:key="gamma_tuning"
+                android:title="@string/gamma_tuning_title_head"
+                android:dialogTitle="@string/gamma_tuning_title_head"
+                android:summary="@string/gamma_tuning_summary_head"
+                android:persistent="false" />
 
             <PreferenceScreen
                 android:persistent="false"

@@ -94,6 +94,16 @@
                 android:resource="@xml/device_admin_lockscreen" />
         </receiver>
 
+      <!-- screen color Settings Controls -->
+        <activity android:name=".ScreenColorSettings" android:label="@string/screencolor"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="nosensor">
+        </activity>
+        <activity android:name=".CustomScreenColor" android:label="@string/custom_screencolor"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="nosensor">
+        </activity>
+
         <!-- Settings -->
 
         <activity android:name="Settings"
@@ -1869,6 +1879,24 @@
                        android:value="com.android.settings.ThemeSettings" />
         </activity>
         <!-- CyanogenMod activities End -->
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to sound packages settings -->
+        <activity android:name="Settings$SoundPackageSettingsActivity"
+                android:label="@string/sound_packages_title"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.android.settings.SHORTCUT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.omni.sounds.SoundPackageSettings" />
+            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
+                android:resource="@id/sound_settings" />
+            <meta-data android:name="com.android.settings.PARENT_FRAGMENT_CLASS"
+                android:value="com.android.settings.Settings$SoundSettingsActivity" />
+        </activity>
 
         <!-- Pseudo-activity used to provide an intent-filter entry point to encryption settings -->
         <activity android:name="Settings$CryptKeeperSettingsActivity"

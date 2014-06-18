@@ -49,8 +49,11 @@ import com.android.settings.DreamSettings;
 import com.android.settings.Utils;
 import com.android.settings.cyanogenmod.DisplayRotation;
 import com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference;
+import com.android.settings.hardware.DisplayColor;
+import com.android.settings.hardware.DisplayGamma;
 
 import org.cyanogenmod.hardware.AdaptiveBacklight;
+import org.cyanogenmod.hardware.TapToWake;
 
 import java.util.ArrayList;
 
@@ -68,6 +71,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_DISPLAY_ROTATION = "display_rotation";
     private static final String KEY_ADAPTIVE_BACKLIGHT = "adaptive_backlight";
     private static final String KEY_ADVANCED_DISPLAY_SETTINGS = "advanced_display_settings";
+    private static final String KEY_TAP_TO_WAKE = "double_tap_wake_gesture";
 
     private static final String CATEGORY_ADVANCED = "advanced_display_prefs";
     private static final String CATEGORY_DISPLAY = "display_prefs";
@@ -77,6 +81,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_WAKE_WHEN_PLUGGED_OR_UNPLUGGED = "wake_when_plugged_or_unplugged";
     private static final String KEY_SCREEN_ANIMATION_OFF = "screen_off_animation";
     private static final String KEY_SCREEN_ANIMATION_STYLE = "screen_animation_style";
+    private static final String KEY_DISPLAY_COLOR = "color_calibration";
+    private static final String KEY_DISPLAY_GAMMA = "gamma_tuning";
     private static final String KEY_SCREEN_COLOR_SETTINGS = "screencolor_settings";
 
     private static final int DLG_GLOBAL_CHANGE_WARNING = 1;
@@ -98,6 +104,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
 
     private CheckBoxPreference mAdaptiveBacklight;
     private SystemSettingCheckBoxPreference mScreenOffAnimation;
+    private CheckBoxPreference mTapToWake;
 
     private ContentObserver mAccelerometerRotationObserver =
             new ContentObserver(new Handler()) {
@@ -155,11 +162,25 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             mAdaptiveBacklight = null;
         }
 
+        mTapToWake = (CheckBoxPreference) findPreference(KEY_TAP_TO_WAKE);
+        if (!isTapToWakeSupported()) {
+            getPreferenceScreen().removePreference(mTapToWake);
+            mTapToWake = null;
+        }
+
+
         Utils.updatePreferenceToSpecificActivityFromMetaDataOrRemove(getActivity(),
                 advancedPrefs, KEY_ADVANCED_DISPLAY_SETTINGS);
 
         mWakeWhenPluggedOrUnplugged =
                 (CheckBoxPreference) findPreference(KEY_WAKE_WHEN_PLUGGED_OR_UNPLUGGED);
+
+        if (!DisplayColor.isSupported()) {
+            advancedPrefs.removePreference(findPreference(KEY_DISPLAY_COLOR));
+        }
+        if (!DisplayGamma.isSupported()) {
+            advancedPrefs.removePreference(findPreference(KEY_DISPLAY_GAMMA));
+        }
 
         mScreenColorSettings = (PreferenceScreen) findPreference(KEY_SCREEN_COLOR_SETTINGS);
         if (!isPostProcessingSupported()) {
@@ -376,6 +397,10 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             mAdaptiveBacklight.setChecked(AdaptiveBacklight.isEnabled());
         }
 
+        if (mTapToWake != null) {
+            mTapToWake.setChecked(TapToWake.isEnabled());
+        }
+
         // Default value for wake-on-plug behavior from config.xml
         boolean wakeUpWhenPluggedOrUnpluggedConfig = getResources().getBoolean(
                 com.android.internal.R.bool.config_unplugTurnsOnScreen);
@@ -482,6 +507,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                     Settings.Global.WAKE_WHEN_PLUGGED_OR_UNPLUGGED,
                     mWakeWhenPluggedOrUnplugged.isChecked() ? 1 : 0);
             return true;
+        } else if (preference == mTapToWake) {
+            return TapToWake.setEnabled(mTapToWake.isChecked());
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -555,6 +582,15 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                 Log.d(TAG, "Adaptive backlight settings restored.");
             }
         }
+        if (isTapToWakeSupported()) {
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+            final boolean enabled = prefs.getBoolean(KEY_TAP_TO_WAKE, true);
+            if (!TapToWake.setEnabled(enabled)) {
+                Log.e(TAG, "Failed to restore tap-to-wake settings.");
+            } else {
+                Log.d(TAG, "Tap-to-wake settings restored.");
+            }
+        }
     }
 
     private boolean isPostProcessingSupported() {
@@ -571,6 +607,15 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static boolean isAdaptiveBacklightSupported() {
         try {
             return AdaptiveBacklight.isSupported();
+        } catch (NoClassDefFoundError e) {
+            // Hardware abstraction framework not installed
+            return false;
+        }
+    }
+
+    private static boolean isTapToWakeSupported() {
+        try {
+            return TapToWake.isSupported();
         } catch (NoClassDefFoundError e) {
             // Hardware abstraction framework not installed
             return false;

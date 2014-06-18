@@ -118,6 +118,11 @@
 
     <!-- Do not nest these, or removals in code will break -->
 
+    <PreferenceScreen
+            android:key="sound_packages"
+            android:fragment="com.android.settings.omni.sounds.SoundPackageSettings"
+            android:title="@string/sound_packages_title" />
+
     <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
             android:key="dtmf_tone"
             android:title="@string/dtmf_tone_enable_title"
@@ -143,6 +148,12 @@
             android:key="haptic_feedback_enabled"
             android:title="@string/haptic_feedback_enable_title"
             android:defaultValue="true" />
+
+    <com.android.settings.hardware.VibratorIntensity
+            android:key="vibration_intensity"
+            android:title="@string/vibrator_intensity_title"
+            android:dialogTitle="@string/vibrator_intensity_title"
+            android:persistent="false" />
 
     <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
             android:key="volume_adjust_sounds_enabled"
