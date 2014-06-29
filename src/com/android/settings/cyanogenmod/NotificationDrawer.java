@@ -17,7 +17,6 @@
 package com.android.settings.cyanogenmod;
 
 import android.os.Bundle;
-import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
 import android.os.UserHandle;
 import android.preference.ListPreference;

@@ -65,12 +65,6 @@ public class StatusBar extends SettingsPreferenceFragment implements OnPreferenc
     private int MASK_UNIT;
     private int MASK_PERIOD;
 
-    private int mNetTrafficVal;
-    private int MASK_UP;
-    private int MASK_DOWN;
-    private int MASK_UNIT;
-    private int MASK_PERIOD;
-
 /**** BEEGEE_PATCH_START ****/
     private static final String STATUS_BAR_NAVI = "status_bar_show_nav";
     private CheckBoxPreference mStatusBarNav;
