@@ -27,7 +27,6 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.view.ViewConfiguration;
 
-<<<<<<< HEAD
 // **** BEEGEE_PATCH_START ****
 import android.app.Activity;
 import android.view.View;
@@ -36,8 +35,6 @@ import com.android.settings.Utils;
 // **** BEEGEE_PATCH_END ****
 
 import com.android.internal.util.slim.DeviceUtils;
-=======
->>>>>>> upstream/android-4.4
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 
@@ -51,18 +48,12 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
     private ListPreference mExpandedDesktopPref;
     private CheckBoxPreference mExpandedDesktopNoNavbarPref;
 
-<<<<<<< HEAD
-    private ListPreference mNavigationBarHeight;
-    private ListPreference mNavigationBarWidth;
-
     // **** BEEGEE_PATCH_START ****
     private static final String KEY_NAV_BAR_POS = "nav_position";
     private static final String KEY_NAV_BAR_LEFT = "navigation_bar_left";
     private ListPreference mNavPos;
     // **** BEEGEE_PATCH_END ****
 
-=======
->>>>>>> upstream/android-4.4
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,20 +70,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
         int expandedDesktopValue = Settings.System.getInt(resolver,
                 Settings.System.EXPANDED_DESKTOP_STYLE, 0);
 
-<<<<<<< HEAD
-        final boolean hasRealNavigationBar = getResources()
-                .getBoolean(com.android.internal.R.bool.config_showNavigationBar);
-        if (hasRealNavigationBar) { // only disable on devices with REAL navigation bars
-            Preference pref = findPreference("hardware_keys_disable");
-            if (pref != null) {
-                prefScreen.removePreference(pref);
-            }
-            pref = findPreference("navbar_force_enable");
-            if (pref != null) {
-                prefScreen.removePreference(pref);
-            }
-        }
-        
         /**** BEEGEE_PATCH_START ****/
         mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
         CheckBoxPreference mNavbarleft = (CheckBoxPreference) prefScreen.findPreference(KEY_NAV_BAR_LEFT);
@@ -107,8 +84,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
         }
         /**** BEEGEE_PATCH_END ****/
 
-=======
->>>>>>> upstream/android-4.4
         // Allows us to support devices, which have the navigation bar force enabled.
         final boolean hasNavBar = !ViewConfiguration.get(getActivity()).hasPermanentMenuKey();
 
