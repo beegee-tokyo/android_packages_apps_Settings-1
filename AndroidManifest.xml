@@ -83,11 +83,10 @@
     <application android:label="@string/settings_label"
             android:icon="@mipmap/ic_launcher_settings"
             android:taskAffinity=""
-            android:theme="@style/Theme.Settings"
+            android:theme="@style/Theme.Settings.Holo"
             android:hardwareAccelerated="true"
             android:requiredForAllUsers="true"
-            android:supportsRtl="true"
-            android:name=".nameless.NamelessApplication">
+            android:supportsRtl="true">
 
         <uses-library android:name="org.cyanogenmod.hardware"
             android:required="false" />
@@ -121,6 +120,7 @@
         <activity android:name="Settings"
                 android:label="@string/settings_label_launcher"
                 android:taskAffinity="com.android.settings"
+                android:configChanges="orientation|screenSize"
                 android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -1700,7 +1700,7 @@
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.nameless.InterfaceMoreSettings" />
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                android:resource="@id/interface_more" />
+                android:resource="@id/crazy_lab" />
         </activity>
 
         <activity android:name="Settings$AnimationInterfaceSettingsActivity"
@@ -1721,7 +1721,7 @@
         <!-- Others -->
         <activity android:name=".slim.NotificationDrawerStyle" />
         <activity
-            android:name=".LockscreenNotifications"
+            android:name=".nameless.LockscreenNotifications"
             android:label="@string/lockscreen_notifications" >
         </activity>
 
@@ -1780,6 +1780,7 @@
         <activity android:name="Settings$ProfilesSettingsActivity"
                 android:label="@string/profile_settings"
                 android:taskAffinity=""
+                android:uiOptions="splitActionBarWhenNarrow"
                 android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -1845,6 +1846,10 @@
         <activity android:name=".notificationlight.BatteryLightSettings" />
 
         <activity android:name=".cyanogenmod.LockscreenInterface" />
+
+        <activity android:name=".cyanogenmod.StatusBar" />
+
+        <activity android:name=".cyanogenmod.NotificationDrawer" />
 
          <!-- "Blacklist settings" UI, used only on voice-capable phone devices. -->
         <activity android:name="Settings$BlacklistSettingsActivity"
@@ -2121,5 +2126,12 @@
             android:name=".cyanogenmod.LtoService">
         </service>
 
+        <service android:name=".search.SearchPopulator"/>
+
+        <receiver android:name=".search.LocaleChangedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

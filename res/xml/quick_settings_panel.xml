@@ -15,7 +15,8 @@
 -->
 
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
 
     <PreferenceCategory
         android:key="pref_general_settings"
@@ -41,11 +42,29 @@
             android:title="@string/title_collapse_panel"
             android:summary="@string/summary_collapse_panel" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="quick_settings_pers_category"
+        android:title="@string/header_category_interface">
+
         <com.android.settings.cyanogenmod.SystemSettingCheckBoxPreference
             android:key="qs_small_icons"
             android:title="@string/title_qs_small_icons"
             android:defaultValue="false"
             android:summary="@string/summary_qs_small_icons" />
+
+        <com.android.settings.nameless.preferences.SystemSettingCheckBoxPreference
+            android:key="quick_settings_tiles_flip"
+            android:title="@string/flip_qs_tiles_title"
+            android:summary="@string/flip_qs_tiles_summary"
+            android:defaultValue="true" />
+
+        <com.android.settings.nameless.preferences.SystemSettingCheckBoxPreference
+            android:key="quick_settings_tiles_vibrate"
+            android:title="@string/haptic_qs_tiles_title"
+            android:summary="@string/haptic_qs_tiles_summary"
+            android:defaultValue="true" />
 
     </PreferenceCategory>
 
@@ -81,18 +100,6 @@
             android:entries="@array/entries_screentimeout_widget"
             android:entryValues="@array/values_screentimeout_widget" />
 
-        <com.android.settings.nameless.preferences.SystemSettingCheckBoxPreference
-            android:key="quick_settings_tiles_flip"
-            android:title="@string/flip_qs_tiles_title"
-            android:summary="@string/flip_qs_tiles_summary"
-            android:defaultValue="true" />
-
-        <com.android.settings.nameless.preferences.SystemSettingCheckBoxPreference
-            android:key="quick_settings_tiles_vibrate"
-            android:title="@string/haptic_qs_tiles_title"
-            android:summary="@string/haptic_qs_tiles_summary"
-            android:defaultValue="true" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -100,6 +107,7 @@
         android:title="@string/title_dynamic_tiles" >
 
         <Preference
+            settings:excludeFromSearch="true"
             style="?android:preferenceInformationStyle"
             android:title="@string/dynamic_tiles_note_title"
             android:summary="@string/dynamic_tiles_note_summary"

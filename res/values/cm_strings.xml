@@ -104,6 +104,10 @@
     <string name="profile_networkmode_3g">3G</string>
     <string name="profile_networkmode_2g3g">2G/3G</string>
 
+    <!-- Search -->
+    <string name="settings_search_action_bar_button">Search</string>
+    <string name="settings_search_autocompleteview_hint">Search settings</string>
+
     <!-- Profile Config screen PreferenceGroup titles -->
     <string name="profile_connectionoverrides_title">Connection overrides</string>
     <string name="profile_volumeoverrides_title">Volume overrides</string>
@@ -853,6 +857,8 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
     <string name="navigation_bar_reset_toast">Navigation bar reset to default</string>
     <string name="navigation_bar_menu_editable">Editable</string>
     <string name="navigation_bar_menu_locked">Locked</string>
+    <string name="navigation_bar_arrow_keys_title">Arrow keys while typing</string>
+    <string name="navigation_bar_arrow_keys_summary">Display left and right cursor buttons while typing</string>
 
     <!-- Navigation ring shortcuts -->
     <string name="navigation_ring_title">Quick launch shortcuts</string>

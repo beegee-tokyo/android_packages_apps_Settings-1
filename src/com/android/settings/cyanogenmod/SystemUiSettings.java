@@ -27,6 +27,7 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.view.ViewConfiguration;
 
+<<<<<<< HEAD
 // **** BEEGEE_PATCH_START ****
 import android.app.Activity;
 import android.view.View;
@@ -35,9 +36,10 @@ import com.android.settings.Utils;
 // **** BEEGEE_PATCH_END ****
 
 import com.android.internal.util.slim.DeviceUtils;
+=======
+>>>>>>> upstream/android-4.4
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
-import com.android.settings.Utils;
 
 public class SystemUiSettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
@@ -45,15 +47,11 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
 
     private static final String KEY_EXPANDED_DESKTOP = "expanded_desktop";
     private static final String KEY_EXPANDED_DESKTOP_NO_NAVBAR = "expanded_desktop_no_navbar";
-    private static final String CATEGORY_NAVBAR = "navigation_bar";
-    private static final String KEY_SCREEN_GESTURE_SETTINGS = "touch_screen_gesture_settings";
-
-    private static final String KEY_NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
-    private static final String KEY_NAVIGATION_BAR_WIDTH = "navigation_bar_width";
 
     private ListPreference mExpandedDesktopPref;
     private CheckBoxPreference mExpandedDesktopNoNavbarPref;
 
+<<<<<<< HEAD
     private ListPreference mNavigationBarHeight;
     private ListPreference mNavigationBarWidth;
 
@@ -63,6 +61,8 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
     private ListPreference mNavPos;
     // **** BEEGEE_PATCH_END ****
 
+=======
+>>>>>>> upstream/android-4.4
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,12 +76,10 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
         mExpandedDesktopNoNavbarPref =
                 (CheckBoxPreference) findPreference(KEY_EXPANDED_DESKTOP_NO_NAVBAR);
 
-        Utils.updatePreferenceToSpecificActivityFromMetaDataOrRemove(getActivity(),
-                getPreferenceScreen(), KEY_SCREEN_GESTURE_SETTINGS);
-
         int expandedDesktopValue = Settings.System.getInt(resolver,
                 Settings.System.EXPANDED_DESKTOP_STYLE, 0);
 
+<<<<<<< HEAD
         final boolean hasRealNavigationBar = getResources()
                 .getBoolean(com.android.internal.R.bool.config_showNavigationBar);
         if (hasRealNavigationBar) { // only disable on devices with REAL navigation bars
@@ -109,35 +107,21 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
         }
         /**** BEEGEE_PATCH_END ****/
 
+=======
+>>>>>>> upstream/android-4.4
         // Allows us to support devices, which have the navigation bar force enabled.
         final boolean hasNavBar = !ViewConfiguration.get(getActivity()).hasPermanentMenuKey();
 
-        final PreferenceCategory navbarCat = (PreferenceCategory) findPreference(CATEGORY_NAVBAR);
         if (hasNavBar) {
             mExpandedDesktopPref.setOnPreferenceChangeListener(this);
             mExpandedDesktopPref.setValue(String.valueOf(expandedDesktopValue));
             updateExpandedDesktop(expandedDesktopValue);
             prefScreen.removePreference(mExpandedDesktopNoNavbarPref);
-
-            mNavigationBarHeight = (ListPreference) findPreference(KEY_NAVIGATION_BAR_HEIGHT);
-            mNavigationBarHeight.setOnPreferenceChangeListener(this);
-
-            mNavigationBarWidth = (ListPreference) findPreference(KEY_NAVIGATION_BAR_WIDTH);
-            if (!DeviceUtils.isPhone(getActivity())) {
-                navbarCat.removePreference(mNavigationBarWidth);
-                mNavigationBarWidth = null;
-            } else {
-                mNavigationBarWidth.setOnPreferenceChangeListener(this);
-            }
-
-            updateDimensionValues();
         } else {
             // Hide no-op "Status bar visible" expanded desktop mode
             mExpandedDesktopNoNavbarPref.setOnPreferenceChangeListener(this);
             mExpandedDesktopNoNavbarPref.setChecked(expandedDesktopValue > 0);
             prefScreen.removePreference(mExpandedDesktopPref);
-            // Hide navigation bar category
-            prefScreen.removePreference(navbarCat);
         }
 
     }
@@ -149,16 +133,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
             return true;
         } else if (preference == mExpandedDesktopNoNavbarPref) {
             updateExpandedDesktop((Boolean) objValue ? 2 : 0);
-            return true;
-        } else if (preference == mNavigationBarWidth) {
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_WIDTH,
-                    Integer.parseInt((String) objValue));
-            return true;
-        } else if (preference == mNavigationBarHeight) {
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_HEIGHT,
-                    Integer.parseInt((String) objValue));
             return true;
         }
 
@@ -202,29 +176,6 @@ public class SystemUiSettings extends SettingsPreferenceFragment implements
         if (mExpandedDesktopPref != null && summary != -1) {
             mExpandedDesktopPref.setSummary(res.getString(summary));
         }
-    }
-
-    private void updateDimensionValues() {
-        int navigationBarHeight = Settings.System.getInt(getContentResolver(),
-                Settings.System.NAVIGATION_BAR_HEIGHT, -2);
-        if (navigationBarHeight == -2) {
-            navigationBarHeight = (int) (getResources().getDimension(
-                    com.android.internal.R.dimen.navigation_bar_height)
-                    / getResources().getDisplayMetrics().density);
-        }
-        mNavigationBarHeight.setValue(String.valueOf(navigationBarHeight));
-
-        if (mNavigationBarWidth == null) {
-            return;
-        }
-        int navigationBarWidth = Settings.System.getInt(getContentResolver(),
-                Settings.System.NAVIGATION_BAR_WIDTH, -2);
-        if (navigationBarWidth == -2) {
-            navigationBarWidth = (int) (getResources().getDimension(
-                    com.android.internal.R.dimen.navigation_bar_width)
-                    / getResources().getDisplayMetrics().density);
-        }
-        mNavigationBarWidth.setValue(String.valueOf(navigationBarWidth));
     }
 
 }
