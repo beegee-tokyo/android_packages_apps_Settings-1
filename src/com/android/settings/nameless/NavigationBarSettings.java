@@ -28,6 +28,13 @@ import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 
+// **** BEEGEE_PATCH_START ****
+import android.preference.CheckBoxPreference;
+import android.app.Activity;
+import android.view.View;
+import android.util.Slog;
+// **** BEEGEE_PATCH_END ****
+
 public class NavigationBarSettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
     private static final String CATEGORY_NAVBAR = "navigation_bar";
@@ -37,6 +44,12 @@ public class NavigationBarSettings extends SettingsPreferenceFragment implements
 
     private ListPreference mNavigationBarHeight;
     private ListPreference mNavigationBarWidth;
+
+    // **** BEEGEE_PATCH_START ****
+    private static final String KEY_NAV_BAR_POS = "nav_position";
+    private static final String KEY_NAV_BAR_LEFT = "navigation_bar_left";
+    private ListPreference mNavPos;
+    // **** BEEGEE_PATCH_END ****
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +80,20 @@ public class NavigationBarSettings extends SettingsPreferenceFragment implements
             mNavigationBarWidth.setOnPreferenceChangeListener(this);
         }
 
+        /**** BEEGEE_PATCH_START ****/
+        mNavPos = (ListPreference) prefScreen.findPreference(KEY_NAV_BAR_POS);
+        CheckBoxPreference mNavbarleft = (CheckBoxPreference) prefScreen.findPreference(KEY_NAV_BAR_LEFT);
+        PreferenceCategory notificationsCategory = (PreferenceCategory) findPreference("navigation_bar");
+//Slog.d("NavBarPos","device_type = "+device_type);
+        if (Utils.isTablet(getActivity())) {
+            notificationsCategory.removePreference(mNavbarleft);
+            Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, 4);
+            mNavPos.setOnPreferenceChangeListener(this);
+        } else {
+            notificationsCategory.removePreference(mNavPos);
+        }
+        /**** BEEGEE_PATCH_END ****/
+
         updateDimensionValues();
     }
 
@@ -82,6 +109,20 @@ public class NavigationBarSettings extends SettingsPreferenceFragment implements
                     Integer.parseInt((String) objValue));
             return true;
         }
+        // **** BEEGEE_PATCH_START ****
+        if (preference == mNavPos) {
+            int mNavPosSel = 2;
+            if (objValue.toString().equals("left")) {
+					mNavPosSel = 0;
+            } else if (objValue.toString().equals("right")) {
+					mNavPosSel = 1;
+            }
+            Settings.System.putInt(getContentResolver(), Settings.System.NAV_BAR_POS, mNavPosSel);
+//Slog.d("NavBarPos","Selected Position = "+mNavPosSel);
+//Slog.d("NavBarPos","Selected Position String = "+objValue.toString());
+           return true;
+        }
+        // **** BEEGEE_PATCH_END ****
         return false;
     }
 
