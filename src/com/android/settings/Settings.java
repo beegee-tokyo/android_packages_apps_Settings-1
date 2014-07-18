@@ -40,12 +40,9 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.nfc.NfcAdapter;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.INetworkManagementService;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -78,6 +75,8 @@ import com.android.internal.util.ArrayUtils;
 import com.android.settings.accessibility.AccessibilitySettings;
 import com.android.settings.accessibility.CaptionPropertiesFragment;
 import com.android.settings.accessibility.ToggleAccessibilityServicePreferenceFragment;
+import com.android.settings.accessibility.ToggleGlobalGesturePreferenceFragment;
+import com.android.settings.accessibility.ToggleScreenMagnificationPreferenceFragment;
 import com.android.settings.accounts.AccountSyncSettings;
 import com.android.settings.accounts.AuthenticatorHelper;
 import com.android.settings.accounts.ManageAccountsSettings;
@@ -89,6 +88,8 @@ import com.android.settings.bluetooth.BluetoothEnabler;
 import com.android.settings.bluetooth.BluetoothSettings;
 import com.android.settings.cyanogenmod.ButtonSettings;
 import com.android.settings.cyanogenmod.LockscreenInterface;
+import com.android.settings.cyanogenmod.NavBar;
+import com.android.settings.cyanogenmod.NavRing;
 import com.android.settings.cyanogenmod.SystemUiSettings;
 import com.android.settings.deviceinfo.Memory;
 import com.android.settings.deviceinfo.UsbSettings;
@@ -109,10 +110,12 @@ import com.android.settings.nfc.PaymentSettings;
 import com.android.settings.print.PrintJobSettingsFragment;
 import com.android.settings.print.PrintServiceSettingsFragment;
 import com.android.settings.print.PrintSettingsFragment;
+import com.android.settings.privacyguard.PrivacyGuardPrefs;
 import com.android.settings.profiles.AppGroupConfig;
 import com.android.settings.profiles.ProfileConfig;
 import com.android.settings.profiles.ProfileEnabler;
 import com.android.settings.profiles.ProfilesSettings;
+import com.android.settings.quicksettings.QuickSettingsTiles;
 import com.android.settings.search.SettingsAutoCompleteTextView;
 import com.android.settings.search.SearchPopulator;
 import com.android.settings.search.SettingsSearchFilterAdapter;
@@ -152,6 +155,7 @@ public class Settings extends PreferenceActivity
         "com.android.settings.PARENT_FRAGMENT_CLASS";
 
     private static final String EXTRA_UI_OPTIONS = "settings:ui_options";
+    private static final String EXTRA_DISABLE_SEARCH = "settings:disable_search";
 
     private static final String SAVE_KEY_CURRENT_HEADER = "com.android.settings.CURRENT_HEADER";
     private static final String SAVE_KEY_PARENT_HEADER = "com.android.settings.PARENT_HEADER";
@@ -160,6 +164,8 @@ public class Settings extends PreferenceActivity
             "org.namelessrom.devicecontrol.activities.MainActivity";
     private static final String ACTION_UPDATE_CENTER =
             "org.namelessrom.updatecenter.activities.MainActivity";
+    private static final String ACTION_NAMELESS_PROVIDER =
+            "org.namelessrom.providers.activities.Preferences";
     private static final String VOICE_WAKEUP_PACKAGE_NAME = "com.cyanogenmod.voicewakeup";
 
     private static final String GESTURE_SETTINGS_PACKAGE_NAME = "com.cyanogenmod.settings";
@@ -168,13 +174,14 @@ public class Settings extends PreferenceActivity
 
     private static boolean sShowNoHomeNotice = false;
 
+    private boolean mDisableSearchIcon = false;
+
     private String mFragmentClass;
     private int mTopLevelHeaderId;
     private Header mFirstHeader;
     private Header mCurrentHeader;
     private Header mParentHeader;
     private boolean mInLocalHeaderSwitch;
-    private SettingsSearchFilterAdapter mSearchAdapter;
 
     // Show only these settings for restricted users
     private int[] SETTINGS_FOR_RESTRICTED = {
@@ -271,41 +278,18 @@ public class Settings extends PreferenceActivity
             }
         });
 
-        new PopulateSearchSettingsTask().execute();
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.MATCH_PARENT);
 
-        ActionBar.LayoutParams layout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-        mSearchBar.setLayoutParams(layout);
+        mSearchBar.setLayoutParams(layoutParams);
         mSearchBar.setHint(R.string.settings_search_autocompleteview_hint);
         mSearchBar.setThreshold(1);
+        mSearchBar.setSingleLine(true);
         mSearchBar.setOnItemClickListener(this);
+        mSearchBar.setAdapter(new SettingsSearchFilterAdapter(this));
+
+        mSearchItem.setVisible(!mDisableSearchIcon);
         return true;
-    }
-
-    private class PopulateSearchSettingsTask extends
-            AsyncTask<Void, Void, ArrayList<SearchInfo>> {
-        @Override
-        protected ArrayList<SearchInfo> doInBackground(Void... param) {
-            return SearchPopulator.loadSearchData(Settings.this);
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<SearchInfo> infos) {
-            mSearchAdapter = new SettingsSearchFilterAdapter(Settings.this,
-                    R.layout.settings_search_complete_view, infos);
-            mSearchBar.setAdapter(mSearchAdapter);
-        }
-    };
-
-    private class SearchNotifier extends ResultReceiver {
-        public SearchNotifier(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-            new PopulateSearchSettingsTask().execute();
-        }
     }
 
     @Override
@@ -314,7 +298,9 @@ public class Settings extends PreferenceActivity
             getWindow().setUiOptions(getIntent().getIntExtra(EXTRA_UI_OPTIONS, 0));
         }
 
-        startPopulatingSearchData();
+        if (getIntent().hasExtra(EXTRA_DISABLE_SEARCH) != onIsMultiPane()) {
+            mDisableSearchIcon = getIntent().getBooleanExtra(EXTRA_DISABLE_SEARCH, false);
+        }
 
         mAuthenticatorHelper = new AuthenticatorHelper();
         mAuthenticatorHelper.updateAuthDescriptions(this);
@@ -615,12 +601,6 @@ public class Settings extends PreferenceActivity
         }
     }
 
-    private void startPopulatingSearchData() {
-        Intent i = new Intent(this, SearchPopulator.class);
-        i.putExtra(SearchPopulator.EXTRA_NOTIFIER, new SearchNotifier(new Handler()));
-        startService(i);
-    }
-
     @Override
     public Intent getIntent() {
         Intent superIntent = super.getIntent();
@@ -717,6 +697,27 @@ public class Settings extends PreferenceActivity
                 PrintSettingsFragment.class.getName().equals(fragmentName) ||
                 PrintServiceSettingsFragment.class.getName().equals(fragmentName)) {
             intent.putExtra(EXTRA_UI_OPTIONS, ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
+            // Should also disable the search options here to not confuse
+            // the end user
+            intent.putExtra(EXTRA_DISABLE_SEARCH, true);
+        } else if (ApplicationSettings.class.getName().equals(fragmentName) ||
+                DataUsageSummary.class.getName().equals(fragmentName) ||
+                QuickSettingsTiles.class.getName().equals(fragmentName) ||
+                HeadsUpSettings.class.getName().equals(fragmentName) ||
+                PowerUsageSummary.class.getName().equals(fragmentName) ||
+                ThemeSettings.class.getName().equals(fragmentName) ||
+                ManageApplications.class.getName().equals(fragmentName) ||
+                NavBar.class.getName().equals(fragmentName) ||
+                NavRing.class.getName().equals(fragmentName) ||
+                PaymentSettings.class.getName().equals(fragmentName) ||
+                CaptionPropertiesFragment.class.getName().equals(fragmentName) ||
+                ToggleScreenMagnificationPreferenceFragment.class.getName().equals(fragmentName) ||
+                ToggleGlobalGesturePreferenceFragment.class.getName().equals(fragmentName) ||
+                PrivacyGuardPrefs.class.getName().equals(fragmentName) ||
+                DevelopmentSettings.class.getName().equals(fragmentName) ||
+                WifiDisplaySettings.class.getName().equals(fragmentName)) {
+            // Should force disable search options
+            intent.putExtra(EXTRA_DISABLE_SEARCH, true);
         }
         intent.setClass(this, SubSettings.class);
     }
@@ -822,17 +823,24 @@ public class Settings extends PreferenceActivity
                 if (um.hasUserRestriction(UserManager.DISALLOW_MODIFY_ACCOUNTS)) {
                     target.remove(i);
                 }
-            } else if (id == R.id.device_control_settings) {
+            } else if (id == R.id.device_control) {
                 if (actionExists(ACTION_DEVICE_CONTROL)) {
                     target.get(i).intent = new Intent().setAction(ACTION_DEVICE_CONTROL);
-                    target.get(i).titleRes = R.string.device_control_settings;
+                    target.get(i).titleRes = R.string.device_control;
                 } else {
                     target.remove(i);
                 }
-            } else if (id == R.id.device_update_center) {
+            } else if (id == R.id.update_center) {
                 if (actionExists(ACTION_UPDATE_CENTER)) {
                     target.get(i).intent = new Intent().setAction(ACTION_UPDATE_CENTER);
-                    target.get(i).titleRes = R.string.device_update_center;
+                    target.get(i).titleRes = R.string.update_center;
+                } else {
+                    target.remove(i);
+                }
+            } else if (id == R.id.nameless_provider) {
+                if (actionExists(ACTION_NAMELESS_PROVIDER)) {
+                    target.get(i).intent = new Intent().setAction(ACTION_NAMELESS_PROVIDER);
+                    target.get(i).titleRes = R.string.nameless_provider;
                 } else {
                     target.remove(i);
                 }
@@ -1029,16 +1037,20 @@ public class Settings extends PreferenceActivity
         mSearchBar.clearFocus();
         mSearchItem.collapseActionView();;
 
-        final InputMethodManager imm =
-                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mSearchBar.getWindowToken(), 0);
-
         if (info.level == 0) {
+            Bundle args = info.header.fragmentArguments;
+            if (args == null) {
+                args = info.header.fragmentArguments = new Bundle();
+            }
+            if (info.key != null && !args.containsKey(SearchPopulator.EXTRA_PREF_KEY)) {
+                args.putString(SearchPopulator.EXTRA_PREF_KEY, info.key);
+            }
             onHeaderClick(info.header, 0);
         } else {
             Intent i = new Intent(this, SubSettings.class);
             i.putExtra(EXTRA_SHOW_FRAGMENT, info.fragment);
-            i.putExtra(EXTRA_SHOW_FRAGMENT_TITLE_TEXT, info.parentTitle);
+            i.putExtra(EXTRA_SHOW_FRAGMENT_TITLE, info.parentTitle);
+            i.putExtra(SearchPopulator.EXTRA_PREF_KEY, info.key);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         }

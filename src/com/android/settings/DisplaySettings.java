@@ -86,6 +86,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_DISPLAY_COLOR = "color_calibration";
     private static final String KEY_DISPLAY_GAMMA = "gamma_tuning";
     private static final String KEY_SCREEN_COLOR_SETTINGS = "screencolor_settings";
+    private static final String KEY_SMART_COVER = "smart_cover";
 
     private static final int DLG_GLOBAL_CHANGE_WARNING = 1;
 
@@ -139,7 +140,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
 
         mScreenSaverPreference = findPreference(KEY_SCREEN_SAVER);
         if (mScreenSaverPreference != null
-                && getResources().getBoolean(
+                && res.getBoolean(
                         com.android.internal.R.bool.config_dreamsSupported) == false) {
             displayPrefs.removePreference(mScreenSaverPreference);
         }
@@ -227,6 +228,11 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
             }
         } else {
             advancedPrefs.removePreference(mScreenAnimationStylePreference);
+        }
+
+        if (res.getIntArray(
+                com.android.internal.R.array.config_smartCoverWindowCoords).length != 4) {
+            getPreferenceScreen().removePreference(findPreference(KEY_SMART_COVER));
         }
 
         boolean hasNotificationLed = res.getBoolean(
@@ -411,7 +417,9 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
 
         if (mTapToWake != null) {
-            mTapToWake.setChecked(TapToWake.isEnabled());
+            final SharedPreferences prefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            mTapToWake.setChecked(prefs.getBoolean(KEY_TAP_TO_WAKE, true));
         }
 
         // Default value for wake-on-plug behavior from config.xml
@@ -523,6 +531,9 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                     mWakeWhenPluggedOrUnplugged.isChecked() ? 1 : 0);
             return true;
         } else if (preference == mTapToWake) {
+            final SharedPreferences prefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            prefs.edit().putBoolean(KEY_TAP_TO_WAKE, mTapToWake.isChecked()).commit();
             return TapToWake.setEnabled(mTapToWake.isChecked());
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);

@@ -1153,7 +1153,7 @@
                 android:label="@string/device_status_activity_title"
                 android:theme="@style/Theme.DialogWhenLarge"
                 android:process="com.android.phone">
-        
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -1835,8 +1835,6 @@
 
         <activity android:name=".cyanogenmod.LockscreenButtons" />
 
-        <activity android:name=".cyanogenmod.PerformanceSettings" />
-
         <activity android:name=".ApnEditor" />
 
         <activity android:name=".cyanogenmod.LockscreenInterface" />
@@ -2096,8 +2094,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".cyanogenmod.BootReceiver" android:enabled="false">
-            <intent-filter>
+        <receiver android:name=".nameless.BootReceiver">
+            <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
@@ -2127,11 +2125,5 @@
         </service>
 
         <service android:name=".search.SearchPopulator"/>
-
-        <receiver android:name=".search.LocaleChangedReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
