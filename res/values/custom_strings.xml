@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
      Copyright (C) 2013 - 2014 The NamelessROM Project
 
@@ -15,7 +14,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources>
 
     <string name="nameless_mod_version">Nameless version</string>
@@ -89,35 +87,40 @@
     <string name="general">General</string>
     <string name="layout">Layout</string>
     <string name="privacy">Privacy</string>
-    <string name="Lockscreen_notifications_header">Lockscreen Notifications</string>
+    <string name="proximity_sensor">Proximity sensor</string>
+
     <string name="lockscreen_notifications">Lockscreen notifications</string>
     <string name="lockscreen_notifications_summary">Show pending notifications on lockscreen</string>
-    <string name="pocket_mode">Pocket mode</string>
-    <string name="pocket_mode_summary">Turn screen on and show all notifications when device is pulled out of pocket. Turn screen off when device gets back into pocket.</string>
-    <string name="show_always">Show always</string>
-    <string name="show_always_summary">Always turn screen on when pulled out of pocket, even when there are no notifications pending</string>
-    <string name="hide_low_priority">Hide low priority</string>
-    <string name="hide_low_priority_summary">Hide low priority notifications such as google now weather notifications</string>
     <string name="hide_non_clearable">Hide non clearable</string>
     <string name="hide_non_clearable_summary">Hide all non clearable notifications</string>
     <string name="dismiss_all">Allow dismissing all notifications</string>
     <string name="dismiss_all_summary">Allow dismissing even non clearable notifications. Of course, they\'re just hidden from lockscreen and not from the notification panel.</string>
-    <string name="expanded_view">Expanded notification view</string>
-    <string name="expanded_view_summary">Show notifications expanded when possible</string>
-    <string name="force_expanded_view">Force expanded view</string>
-    <string name="force_expanded_view_summary">Show notifications expanded by default. You still will be able to toggle between expanded and normal view.</string>
-    <string name="wake_on_notification">Wake on notification</string>
-    <string name="wake_on_notification_summary">Wake device when a new notification is received</string>
-    <string name="notifications_height">Notification count</string>
-    <string name="notifications_height_summary">Number of notifications displayed at once</string>
-    <string name="offset_top">Offset to the top of the screen:</string>
-    <string name="privacy_mode">Privacy Mode</string>
-    <string name="privacy_mode_summary">Disables notifications from being shown and dismissed. This way, you just see the icons of your notifications.</string>
+    <string name="dismiss_notification">Dismiss notification</string>
+    <string name="dismiss_notification_summary">Whether or not notification is dismissed when swiped away from interface</string>
+    <string name="hide_low_priority">Hide low priority</string>
+    <string name="hide_low_priority_summary">Hide low priority notifications such as google now weather notifications</string>
+    <string name="included_apps_title">Included applications</string>
+    <string name="included_apps_summary">Low priority notifications of included applications will be shown</string>
     <string name="excluded_apps_title">Excluded applications</string>
     <string name="excluded_apps_summary">Excluded applications will not show up as lockscreen notifications</string>
-    <string name="notification_color">Notification background color</string>
+    <string name="pocket_mode">Pocket mode</string>
+    <string name="pocket_mode_summary">Turn screen on and show all notifications when device is pulled out of pocket. Turn screen off when device gets back into pocket.</string>
+    <string name="show_always">Show always</string>
+    <string name="show_always_summary">Always turn screen on when pulled out of pocket, even when there are no notifications pending</string>
+    <string name="wake_on_notification">Wake on notification</string>
+    <string name="wake_on_notification_summary">Wake device when a new notification is received</string>
     <string name="dynamic_width">Dynamic width</string>
-    <string name="dynamic_width_summary">Sets the width of notifications dynamic, so that they only use the space they really need</string>
+    <string name="dynamic_width_summary">Sets the width of notifications dynamically, so that they only use the space they really need</string>
+    <string name="offset_top">Offset to the top of the screen:</string>
+    <string name="notifications_height">Notification count</string>
+    <string name="notifications_height_summary">Number of notifications displayed at once</string>
+    <string name="notification_color">Notification background color</string>
+    <string name="privacy_mode">Privacy Mode</string>
+    <string name="privacy_mode_summary">Disables notifications from being shown and dismissed. This way, you just see the icons of your notifications.</string>
+    <string name="expanded_view">Expanded notification view</string>
+    <string name="expanded_view_summary">Add possibility to toggle between normal and expanded view by longpress. The expanded view sometimes shows more private information so you might want to disable it.</string>
+    <string name="force_expanded_view">Force expanded view</string>
+    <string name="force_expanded_view_summary">Show notifications expanded by default. You still will be able to toggle between expanded and normal view.</string>
 
     <!-- ListView animation -->
     <string name="bars_and_menus_category_system_title">System</string>
@@ -371,10 +374,6 @@
     <string name="enable_acra_title">Enable Crashreporting</string>
     <string name="enable_acra_summary">If checked, crashes are automatically send to NamelessRom</string>
 
-    <!-- New Recents Screen -->
-    <string name="new_recents_screen_title">Use new recents</string>
-    <string name="new_recents_screen_summary">Replaces the recents screen with one based on the new google cards optic.</string>
-
     <!-- Screen Recording -->
     <string name="srec_enable_touches_title">Enable Pointer</string>
     <string name="srec_enable_touches_summary">Enable visual pointer to show touches during screen recording</string>
@@ -413,8 +412,36 @@
 
     <!-- Lockscreen Lid Settings -->
     <string name="smart_cover">Smart cover</string>
-    <string name="smart_cover_wake_title">Smart cover wake</string>
-    <string name="smart_cover_wake_summary">Wakeup device when smart cover opens</string>
-    <string name="smart_cover_sleep_title">Smart cover sleep</string>
-    <string name="smart_cover_sleep_summary">Put the device to sleep when smart cover closes</string>
+    <string name="smart_cover_title">Use smart cover</string>
+    <string name="smart_cover_summary">Replaces the lockscreen with a smart cover when the lid is closed</string>
+    <string name="smart_cover_wake_title">Wake device</string>
+    <string name="smart_cover_wake_summary">Wakeup device when the lid opens</string>
+    <string name="smart_cover_sleep_title">Put to sleep</string>
+    <string name="smart_cover_sleep_summary">Put the device to sleep when the lid closes</string>
+
+    <string name="title_qs_swipe_anywhere">Swipe anywhere</string>
+    <string name="summary_qs_swipe_anywhere">Allow to swipe anywhere to switch between notifications and quicktiles</string>
+
+    <string name="fifteen_seconds">15 seconds</string>
+    <string name="thirty_seconds">30 seconds</string>
+    <string name="one_minute">1 minute</string>
+    <string name="two_minutes">2 minutes</string>
+    <string name="five_minutes">5 minutes</string>
+    <string name="ten_minutes">10 minutes</string>
+    <string name="thirty_minutes">30 minutes</string>
+
+    <!-- Power menu -->
+    <string name="power_menu_mobile_data_title">Mobile Data</string>
+    <string name="power_menu_wifi_title">Wifi</string>
+
+    <!-- Actions -->
+    <string name="hardware_keys_action_last_app">Switch to last app</string>
+    <string name="hardware_keys_action_immersive_mode">Toggle immersive mode</string>
+
+    <!-- Button backlight mode -->
+    <string name="button_backlight_auto">Auto</string>
+    <string name="button_backlight_on">On</string>
+    <string name="button_backlight_off">Off</string>
+    <string name="button_backlight_force_on">Force on</string>
+    <string name="button_backlight_force_off">Force off</string>
 </resources>

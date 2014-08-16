@@ -347,12 +347,14 @@
         <item>@string/quick_pulldown_off</item>
         <item>@string/quick_pulldown_right</item>
         <item>@string/quick_pulldown_left</item>
+        <item>@string/quick_pulldown_center</item>
     </string-array>
 
     <string-array name="quick_pulldown_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
+        <item>3</item>
     </string-array>
 
 
@@ -461,6 +463,8 @@
         <item>@string/hardware_keys_action_voice_search</item>
         <item>@string/hardware_keys_action_in_app_search</item>
         <item>@string/hardware_keys_action_launch_camera</item>
+        <item>@string/hardware_keys_action_last_app</item>
+        <item>@string/hardware_keys_action_immersive_mode</item>
     </string-array>
 
     <string-array name="hardware_keys_action_values" translatable="false">
@@ -471,6 +475,8 @@
         <item>4</item>
         <item>5</item>
         <item>6</item>
+        <item>7</item>
+        <item>8</item>
     </string-array>
 
     <!-- Volume key cursor control -->
