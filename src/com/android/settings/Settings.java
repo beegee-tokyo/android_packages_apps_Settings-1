@@ -103,7 +103,6 @@ import com.android.settings.inputmethod.UserDictionaryList;
 import com.android.settings.location.LocationEnabler;
 import com.android.settings.location.LocationSettings;
 import com.android.settings.nameless.NavigationBarSettings;
-import com.android.settings.nameless.utils.Helpers;
 import com.android.settings.net.MobileDataEnabler;
 import com.android.settings.nfc.AndroidBeam;
 import com.android.settings.nfc.PaymentSettings;
@@ -774,12 +773,10 @@ public class Settings extends PreferenceActivity
                     target.remove(i);
                 }
             } else if (id == R.id.user_settings) {
-                if (!Helpers.isSecretModeEnabled()) {
-                    if (!UserHandle.MU_ENABLED
-                            || !UserManager.supportsMultipleUsers()
-                            || Utils.isMonkeyRunning()) {
-                        target.remove(i);
-                    }
+                if (!UserHandle.MU_ENABLED
+                        || !UserManager.supportsMultipleUsers()
+                        || Utils.isMonkeyRunning()) {
+                    target.remove(i);
                 }
             } else if (id == R.id.nfc_payment_settings) {
                 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_NFC)) {
@@ -1307,19 +1304,6 @@ public class Settings extends PreferenceActivity
         boolean revert = false;
         if (header.id == R.id.account_add) {
             revert = true;
-        }
-
-        // a temp hack while we prepare to switch
-        // to the new theme chooser.
-        if (header.id == R.id.theme_settings && !Helpers.isSecretModeEnabled()) {
-            try {
-                Intent intent = new Intent();
-                intent.setClassName("com.tmobile.themechooser", "com.tmobile.themechooser.ThemeChooser");
-                startActivity(intent);
-                return;
-            } catch(ActivityNotFoundException e) {
-                 // Do nothing, we will launch the submenu
-            }
         }
 
         super.onHeaderClick(header, position);
