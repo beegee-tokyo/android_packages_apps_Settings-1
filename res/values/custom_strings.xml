@@ -305,10 +305,6 @@
     <string name="clock_date_format_custom">Custom java format</string>
     <string name="status_bar_clock_style_reset_message">Reset clock color?</string>
 
-    <!-- Screen-On Notification Light -->
-    <string name="screen_on_notification_led_title">Screen-on notification light</string>
-    <string name="screen_on_notification_led_summary">Enable notification light even when screen is on</string>
-
     <!-- Navigation bar -->
     <!-- Navigation bar height/width -->
     <string name="navbar_dimen_title">Dimensions</string>
@@ -337,19 +333,6 @@
     <string name="show_cpu_info">Show CPU info</string>
     <!-- UI debug setting: show cpu usage summary [CHAR LIMIT=50] -->
     <string name="show_cpu_info_summary">Screen overlay showing current CPU info</string>
-
-    <!-- More app settings -->
-    <string name="more_app_settings">More app settings</string>
-
-    <!-- Wakelock blocker -->
-    <string name="wakelock_blocker">Wakelock Blocker</string>
-    <string name="wakelock_blocker_title">Enable</string>
-    <string name="wakelock_blocker_summary">Activate blocking for checked wakelocks</string>
-    <string name="wakelock_blocker_save">Save</string>
-    <string name="wakelock_list_header">Available Wakelocks</string>
-    <string name="wakelock_blocker_reload">Reload</string>
-    <string name="wakelock_blocker_warning_title">Proceed with Caution</string>
-    <string name="wakelock_blocker_warning">Blocking wakelocks have the potential to cause instability, crashes or data loss.</string>
 
     <!-- QuickSettings fliptiles -->
     <string name="flip_qs_tiles_title">Flip tiles</string>
@@ -380,10 +363,6 @@
     <string name="srec_enable_touches_summary">Enable visual pointer to show touches during screen recording</string>
     <string name="srec_enable_mic_title">Use Microphone</string>
     <string name="srec_enable_mic_summary">Use microphone as audio input during screen recording</string>
-
-    <!-- Text for forcing expanded notifications -->
-    <string name="disable_fc_notifications_title">Disable FC Notifications</string>
-    <string name="disable_fc_notifications_summary">This will hide all force close notifications</string>
 
     <!-- Menu Entries in Nameless -> more -->
     <string name="misc_crash_report">Crash Report</string>
@@ -438,6 +417,7 @@
     <!-- Actions -->
     <string name="hardware_keys_action_immersive_mode">Toggle immersive mode</string>
     <string name="hardware_keys_action_screen_off">Turn screen off</string>
+    <string name="hardware_keys_action_toggle_torch">Toggle torch</string>
 
     <string name="power_menu_reboot_oneclick">One-click reboot</string>
     <string name="power_menu_reboot_oneclick_summary">Instantly trigger reboot action</string>
