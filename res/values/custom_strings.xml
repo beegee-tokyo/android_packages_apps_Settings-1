@@ -79,6 +79,10 @@
     <string name="set">Set</string>
     <string name="color_default">Default</string>
 
+    <!-- Recents Bar -->
+    <string name="recents_bar">Recents bar</string>
+    <string name="recents_bar_summary">Shows a quick action bar on the bottom of the recents screen</string>
+
     <!-- RAM Bar -->
     <string name="ram_bar_title">Recents RAM bar</string>
     <string name="ram_bar_summary">Shows RAM usage in the recent apps window</string>
@@ -358,12 +362,6 @@
     <string name="enable_acra_title">Enable Crashreporting</string>
     <string name="enable_acra_summary">If checked, crashes are automatically send to NamelessRom</string>
 
-    <!-- Screen Recording -->
-    <string name="srec_enable_touches_title">Enable Pointer</string>
-    <string name="srec_enable_touches_summary">Enable visual pointer to show touches during screen recording</string>
-    <string name="srec_enable_mic_title">Use Microphone</string>
-    <string name="srec_enable_mic_summary">Use microphone as audio input during screen recording</string>
-
     <!-- Menu Entries in Nameless -> more -->
     <string name="misc_crash_report">Crash Report</string>
     <string name="misc_others">Others</string>
@@ -399,6 +397,8 @@
     <string name="smart_cover_sleep_title">Put to sleep</string>
     <string name="smart_cover_sleep_summary">Put the device to sleep when the lid closes</string>
 
+    <string name="smart_cover_customize">Customize smart cover</string>
+
     <string name="title_qs_swipe_anywhere">Swipe anywhere</string>
     <string name="summary_qs_swipe_anywhere">Allow to swipe anywhere to switch between notifications and quicktiles</string>
 
@@ -421,4 +421,7 @@
 
     <string name="power_menu_reboot_oneclick">One-click reboot</string>
     <string name="power_menu_reboot_oneclick_summary">Instantly trigger reboot action</string>
+
+    <string name="color_reset">Reset color</string>
+    <string name="color_pick">Pick color</string>
 </resources>
